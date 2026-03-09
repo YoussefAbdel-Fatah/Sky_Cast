@@ -1,4 +1,4 @@
-package com.example.skycast.ui.theme
+package com.example.skycast.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
