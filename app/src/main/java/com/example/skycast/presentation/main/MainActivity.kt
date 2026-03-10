@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.skycast.data.remote.RetrofitClient
+import com.example.skycast.data.remote.WeatherRemoteDataSourceImp
 import com.example.skycast.data.repository.WeatherRepositoryImp
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.home.HomeViewModel
@@ -19,7 +20,10 @@ class MainActivity : ComponentActivity() {
 
     // 1. Manually instantiate our dependencies
     private val apiService by lazy { RetrofitClient.weatherApiService }
-    private val repository by lazy { WeatherRepositoryImp(apiService) }
+    // Add the data source here:
+    private val remoteDataSource by lazy { WeatherRemoteDataSourceImp(apiService) }
+    // Pass the remoteDataSource to the repository:
+    private val repository by lazy { WeatherRepositoryImp(remoteDataSource) }
     private val factory by lazy { HomeViewModelFactory(repository) }
 
     // 2. Initialize the ViewModel using the factory
