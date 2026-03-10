@@ -10,7 +10,6 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class WeatherRepositoryImp(
-    // It now takes the Data Source instead of the ApiService!
     private val remoteDataSource: WeatherRemoteDataSource
 ) : WeatherRepository {
 

@@ -93,10 +93,10 @@ fun HomeScreen(
 
                         // Main Top Card
                         MainWeatherCard(
-                            temperature = "${currentWeather.main.temp.toInt()}°C",
+                            temperature = "${currentWeather.mainWeather.temp.toInt()}°C",
                             city = weatherData.city.name,
                             description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "Clear",
-                            highLow = "H: ${currentWeather.main.tempMax.toInt()}°  L: ${currentWeather.main.tempMin.toInt()}°",
+                            highLow = "H: ${currentWeather.mainWeather.tempMax.toInt()}°  L: ${currentWeather.mainWeather.tempMin.toInt()}°",
                             icon = painterResource(id = android.R.drawable.ic_menu_gallery) // We will map dynamic icons later!
                         )
 
@@ -107,7 +107,7 @@ fun HomeScreen(
                             WeatherDetailsCard(
                                 icon = painterResource(id = android.R.drawable.ic_menu_info_details),
                                 label = "Humidity",
-                                value = "${currentWeather.main.humidity}%",
+                                value = "${currentWeather.mainWeather.humidity}%",
                                 modifier = Modifier.weight(1f)
                             )
                             WeatherDetailsCard(
@@ -122,7 +122,7 @@ fun HomeScreen(
                             WeatherDetailsCard(
                                 icon = painterResource(id = android.R.drawable.ic_menu_compass),
                                 label = "Pressure",
-                                value = "${currentWeather.main.pressure} hPa",
+                                value = "${currentWeather.mainWeather.pressure} hPa",
                                 modifier = Modifier.weight(1f)
                             )
                             WeatherDetailsCard(
@@ -143,7 +143,7 @@ fun HomeScreen(
                                 HourlyForecastItem(
                                     time = formatTime(forecast.dtTxt), // "12 PM"
                                     icon = painterResource(id = android.R.drawable.ic_menu_gallery),
-                                    temperature = "${forecast.main.temp.toInt()}°",
+                                    temperature = "${forecast.mainWeather.temp.toInt()}°",
                                     isActive = hourlyForecast.indexOf(forecast) == 0 // Highlight the current hour
                                 )
                             }
@@ -160,8 +160,8 @@ fun HomeScreen(
                                 day = formatDate(forecast.dtTxt), // "Tuesday"
                                 icon = painterResource(id = android.R.drawable.ic_menu_gallery),
                                 status = forecast.weather.firstOrNull()?.main ?: "Clear",
-                                highTemp = "${forecast.main.tempMax.toInt()}°",
-                                lowTemp = "${forecast.main.tempMin.toInt()}°"
+                                highTemp = "${forecast.mainWeather.tempMax.toInt()}°",
+                                lowTemp = "${forecast.mainWeather.tempMin.toInt()}°"
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                         }

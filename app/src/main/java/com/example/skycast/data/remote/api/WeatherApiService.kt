@@ -7,8 +7,6 @@ import retrofit2.http.Query
 
 interface WeatherApiService {
 
-//    val API_KEY = "e1848fc18c64af75e36cd81141cf4ad0"
-
     // 1. Get weather using Latitude and Longitude (GPS or Map click)
     @GET("data/2.5/forecast")
     suspend fun getWeatherByCoordinates(

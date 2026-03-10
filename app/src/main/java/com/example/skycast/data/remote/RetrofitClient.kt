@@ -19,6 +19,7 @@ object RetrofitClient {
 //        .addInterceptor(loggingInterceptor)
 //        .build()
 
+    // by lazy: run this block the first time this variable will be used ant the last line is returned and cached so, when we call it again, it will return the cached value
     val weatherApiService: WeatherApiService by lazy {
         Retrofit.Builder()
             .baseUrl(Constants.BASE_URL)

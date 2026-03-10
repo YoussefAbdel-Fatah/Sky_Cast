@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
     private val repository by lazy { WeatherRepositoryImp(remoteDataSource) }
     private val factory by lazy { HomeViewModelFactory(repository) }
 
-    // 2. Initialize the ViewModel using the factory
+    // by viewModels is like by lazy but for ViewModels and it is used to initialize the ViewModel only once.
     private val viewModel: HomeViewModel by viewModels { factory }
 
     override fun onCreate(savedInstanceState: Bundle?) {
