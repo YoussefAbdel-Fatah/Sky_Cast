@@ -2,12 +2,10 @@ package com.example.skycast.data.remote
 
 import com.example.skycast.data.remote.api.WeatherApiService
 import com.example.skycast.utils.Constants
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-object RetrofitClient {
+object RetrofitWeatherClient {
 
 //    // This interceptor helps us see the network requests and responses in the Logcat
 //    // which is super helpful for debugging!

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.skycast.data.location.LocationTracker
 import com.example.skycast.data.repository.WeatherRepository
-import com.example.skycast.data.settings.SettingsRepository
+import com.example.skycast.data.repository.SettingsRepository
 import com.example.skycast.utils.NetworkObserver
 
 class HomeViewModelFactory(

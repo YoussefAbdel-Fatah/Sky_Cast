@@ -1,5 +1,7 @@
 package com.example.skycast.data.remote.response
 
+import com.example.skycast.data.model.City
+import com.example.skycast.data.model.ForecastItem
 import com.google.gson.annotations.SerializedName
 
 data class WeatherResponse(

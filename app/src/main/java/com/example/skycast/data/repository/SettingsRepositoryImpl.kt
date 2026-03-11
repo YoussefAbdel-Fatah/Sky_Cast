@@ -1,4 +1,4 @@
-package com.example.skycast.data.settings
+package com.example.skycast.data.repository
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

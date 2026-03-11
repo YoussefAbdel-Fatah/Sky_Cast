@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.skycast.data.location.LocationTracker
 import com.example.skycast.data.remote.response.WeatherResponse
 import com.example.skycast.data.repository.WeatherRepository
-import com.example.skycast.data.settings.SettingsRepository
+import com.example.skycast.data.repository.SettingsRepository
 import com.example.skycast.utils.NetworkObserver
 import com.example.skycast.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow

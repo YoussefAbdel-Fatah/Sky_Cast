@@ -1,5 +1,6 @@
 package com.example.skycast.presentation.main
 
+import LocationSearchRepository
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,11 +16,11 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.skycast.data.local.WeatherDatabase
 import com.example.skycast.data.local.WeatherLocalDataSourceImpl
 import com.example.skycast.data.location.DefaultLocationTracker
-import com.example.skycast.data.remote.RetrofitClient
+import com.example.skycast.data.remote.RetrofitNominatimClient
+import com.example.skycast.data.remote.RetrofitWeatherClient
 import com.example.skycast.data.remote.WeatherRemoteDataSourceImp
 import com.example.skycast.data.repository.WeatherRepositoryImp
-import com.example.skycast.data.settings.SettingsRepositoryImpl
-import com.example.skycast.presentation.home.HomeScreen
+import com.example.skycast.data.repository.SettingsRepositoryImpl
 import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.home.HomeViewModelFactory
 import com.example.skycast.presentation.map.MapViewModel
@@ -35,9 +36,12 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "sk
 class MainActivity : ComponentActivity() {
 
     // 1. Manually instantiate our dependencies
-    private val apiService by lazy { RetrofitClient.weatherApiService }
+    private val weatherApiService by lazy { RetrofitWeatherClient.weatherApiService }
+    private val nominatimApiService by lazy { RetrofitNominatimClient.nominatimApiService }
+    private val locationSearchRepository by lazy { LocationSearchRepository(nominatimApiService) }
+
     // Add the data source here:
-    private val remoteDataSource by lazy { WeatherRemoteDataSourceImp(apiService) }
+    private val remoteDataSource by lazy { WeatherRemoteDataSourceImp(weatherApiService) }
     private val weatherDao by lazy { WeatherDatabase.getDatabase(applicationContext).weatherDao() }
     private val localDataSource by lazy { WeatherLocalDataSourceImpl(weatherDao) }
     private val networkObserver by lazy { NetworkObserver(applicationContext) }
@@ -49,7 +53,7 @@ class MainActivity : ComponentActivity() {
     private val settingsRepository by lazy { SettingsRepositoryImpl(applicationContext.dataStore) }
     private val settingsFactory by lazy { SettingsViewModelFactory(settingsRepository) }
     private val settingsViewModel: SettingsViewModel by viewModels { settingsFactory }
-    private val mapFactory by lazy { MapViewModelFactory(settingsRepository) }
+    private val mapFactory by lazy { MapViewModelFactory(settingsRepository, locationSearchRepository) }
     private val mapViewModel: MapViewModel by viewModels { mapFactory }
     private val factory by lazy { HomeViewModelFactory(repository, networkObserver, locationTracker, settingsRepository) }
 

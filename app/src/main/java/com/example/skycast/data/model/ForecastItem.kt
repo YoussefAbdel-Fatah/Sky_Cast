@@ -1,4 +1,4 @@
-package com.example.skycast.data.remote.response
+package com.example.skycast.data.model
 
 import com.google.gson.annotations.SerializedName
 
