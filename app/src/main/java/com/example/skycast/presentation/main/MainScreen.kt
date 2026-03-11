@@ -16,6 +16,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.home.HomeViewModel
+import com.example.skycast.presentation.map.MapScreen
+import com.example.skycast.presentation.map.MapViewModel
 import com.example.skycast.presentation.navigation.Screen
 import com.example.skycast.presentation.settings.SettingsScreen
 import com.example.skycast.presentation.settings.SettingsViewModel
@@ -23,7 +25,7 @@ import com.example.skycast.presentation.theme.BackgroundLight
 import com.example.skycast.presentation.theme.SkyBlue
 
 @Composable
-fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewModel) {
+fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewModel, mapViewModel: MapViewModel) {
     val navController = rememberNavController()
 
     val screens = listOf(
@@ -89,7 +91,18 @@ fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewMode
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Alerts Screen") }
             }
             composable(Screen.Settings.route) {
-                SettingsScreen(viewModel = settingsViewModel)
+                SettingsScreen(
+                    viewModel = settingsViewModel,
+                    onNavigateToMap = {
+                        navController.navigate(Screen.Map.route)
+                    }
+                    )
+            }
+            composable(Screen.Map.route) {
+                MapScreen(
+                    viewModel = mapViewModel,
+                    onNavigateBack = { navController.popBackStack() }
+                )
             }
         }
     }

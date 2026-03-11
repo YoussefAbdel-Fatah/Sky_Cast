@@ -1,5 +1,6 @@
 package com.example.skycast.presentation.settings
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -13,7 +14,10 @@ import com.example.skycast.presentation.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel) {
+fun SettingsScreen(
+    viewModel: SettingsViewModel,
+    onNavigateToMap: () -> Unit
+    ) {
     val locationMethod by viewModel.locationMethod.collectAsState()
     val tempUnit by viewModel.tempUnit.collectAsState()
     val language by viewModel.language.collectAsState()
@@ -43,6 +47,21 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     selectedValue = locationMethod,
                     onSelectionChanged = { viewModel.updateLocationMethod(it) }
                 )
+            }
+            item {
+                AnimatedVisibility(visible = locationMethod == "map") {
+                    Button(
+                        onClick = onNavigateToMap,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                            .height(50.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = SkyBlue),
+                        shape = AppShapes.medium
+                    ) {
+                        Text("Open Map to Pick Location", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    }
+                }
             }
             item {
                 // 2. Temperature Unit

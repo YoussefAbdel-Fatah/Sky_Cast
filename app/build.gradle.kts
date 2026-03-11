@@ -89,4 +89,8 @@ dependencies {
     // 8. DataStore
     // Preferences DataStore
     implementation("androidx.datastore:datastore-preferences:1.1.1")
+
+    //
+    // 9.OpenStreetMap library
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
 }

@@ -22,6 +22,8 @@ import com.example.skycast.data.settings.SettingsRepositoryImpl
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.home.HomeViewModelFactory
+import com.example.skycast.presentation.map.MapViewModel
+import com.example.skycast.presentation.map.MapViewModelFactory
 import com.example.skycast.presentation.settings.SettingsViewModel
 import com.example.skycast.presentation.settings.SettingsViewModelFactory
 import com.example.skycast.presentation.theme.WeatherAppTheme
@@ -47,6 +49,8 @@ class MainActivity : ComponentActivity() {
     private val settingsRepository by lazy { SettingsRepositoryImpl(applicationContext.dataStore) }
     private val settingsFactory by lazy { SettingsViewModelFactory(settingsRepository) }
     private val settingsViewModel: SettingsViewModel by viewModels { settingsFactory }
+    private val mapFactory by lazy { MapViewModelFactory(settingsRepository) }
+    private val mapViewModel: MapViewModel by viewModels { mapFactory }
     private val factory by lazy { HomeViewModelFactory(repository, networkObserver, locationTracker, settingsRepository) }
 
     // by viewModels is like by lazy but for ViewModels and it is used to initialize the ViewModel only once.
@@ -66,7 +70,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // 3. Display the HomeScreen and pass the ViewModel
-                    MainScreen(homeViewModel = viewModel, settingsViewModel = settingsViewModel)
+                    MainScreen(homeViewModel = viewModel, settingsViewModel = settingsViewModel, mapViewModel = mapViewModel)
                 }
             }
         }
