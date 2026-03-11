@@ -1,5 +1,8 @@
 package com.example.skycast.presentation.home
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -40,6 +43,25 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val pullToRefreshState = rememberPullToRefreshState()
+
+    // 1. Setup the Permission Launcher
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions(),
+        onResult = {
+            // Once the user clicks "Allow" or "Deny", tell the ViewModel to load the weather
+            viewModel.loadWeatherInfo()
+        }
+    )
+
+    // 2. Request the permissions as soon as the screen opens
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(
+            arrayOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+        )
+    }
 
     Scaffold(
         topBar = {

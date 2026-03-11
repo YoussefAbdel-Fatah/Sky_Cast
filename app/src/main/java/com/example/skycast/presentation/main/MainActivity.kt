@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.skycast.data.local.WeatherDatabase
 import com.example.skycast.data.local.WeatherLocalDataSourceImpl
+import com.example.skycast.data.location.DefaultLocationTracker
 import com.example.skycast.data.remote.RetrofitClient
 import com.example.skycast.data.remote.WeatherRemoteDataSourceImp
 import com.example.skycast.data.repository.WeatherRepositoryImp
@@ -18,6 +19,7 @@ import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.home.HomeViewModelFactory
 import com.example.skycast.presentation.theme.WeatherAppTheme
 import com.example.skycast.utils.NetworkObserver
+import com.google.android.gms.location.LocationServices
 
 class MainActivity : ComponentActivity() {
 
@@ -31,7 +33,9 @@ class MainActivity : ComponentActivity() {
 
     // Pass the remoteDataSource to the repository:
     private val repository by lazy { WeatherRepositoryImp(remoteDataSource, localDataSource) }
-    private val factory by lazy { HomeViewModelFactory(repository, networkObserver) }
+    private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
+    private val locationTracker by lazy { DefaultLocationTracker(fusedLocationClient, application) }
+    private val factory by lazy { HomeViewModelFactory(repository, networkObserver, locationTracker) }
 
     // by viewModels is like by lazy but for ViewModels and it is used to initialize the ViewModel only once.
     private val viewModel: HomeViewModel by viewModels { factory }
