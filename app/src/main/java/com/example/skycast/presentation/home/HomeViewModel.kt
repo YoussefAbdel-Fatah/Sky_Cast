@@ -3,6 +3,7 @@ package com.example.skycast.presentation.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.skycast.data.location.LocationTracker
+import com.example.skycast.data.remote.response.WeatherResponse
 import com.example.skycast.data.repository.WeatherRepository
 import com.example.skycast.data.settings.SettingsRepository
 import com.example.skycast.utils.NetworkObserver
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -78,9 +80,9 @@ class HomeViewModel(
     fun refresh() {
         _uiState.value = _uiState.value.copy(isRefreshing = true)
         if (lastLat != null && lastLon != null) {
-            getWeatherByLocation(lastLat!!, lastLon!!)
+            getWeatherByLocation(lastLat!!, lastLon!!, _uiState.value.tempUnit, currentLang)
         } else {
-            getWeatherByCity(lastSearchedCity ?: "London")
+            getWeatherByCity(lastSearchedCity ?: "London", _uiState.value.tempUnit, currentLang)
         }
     }
 
@@ -88,45 +90,36 @@ class HomeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
-            val location = locationTracker.getCurrentLocation()
-            if (location != null) {
-                // We got the GPS location! Fetch weather for these coordinates.
-                getWeatherByLocation(location.latitude, location.longitude)
+            if (currentLocationMethod == "gps") {
+                val location = locationTracker.getCurrentLocation()
+                if (location != null) {
+                    getWeatherByLocation(location.latitude, location.longitude, _uiState.value.tempUnit, currentLang)
+                } else {
+                    getWeatherByCity("London", _uiState.value.tempUnit, currentLang) // Fallback
+                }
             } else {
-                // Fallback to a default city if permission is denied or GPS is off
-                getWeatherByCity("London")
+                val mapLocation = settingsRepository.getMapLocation().first()
+
+                if (mapLocation != null) {
+                    // We found a saved map location! Fetch weather for it.
+                    val (lat, lon) = mapLocation
+                    getWeatherByLocation(lat, lon, _uiState.value.tempUnit, currentLang)
+                } else {
+                    // The user set the method to "Map" but hasn't actually picked a location on the map yet.
+                    // We can fallback to a default city until they pick one.
+                    getWeatherByCity("London", _uiState.value.tempUnit, currentLang)
+                }
             }
         }
     }
 
     fun getWeatherByCity(cityName: String, units: String = "metric", lang: String = "en") {
         lastSearchedCity = cityName
+        lastLat = null
+        lastLon = null
         viewModelScope.launch {
             repository.getWeatherByCityName(cityName, units, lang).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        // Only show main loading if we don't have data yet
-                        if (_uiState.value.weatherData == null) {
-                            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                        }
-                    }
-                    is Resource.Success -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            weatherData = result.data,
-                            error = null
-                        )
-                    }
-                    is Resource.Error -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            // Don't show an error string if we are just offline and already have cached data
-                            error = if (_uiState.value.weatherData == null) result.message else null
-                        )
-                    }
-                }
+                handleResult(result)
             }
         }
     }
@@ -134,34 +127,38 @@ class HomeViewModel(
     fun getWeatherByLocation(lat: Double, lon: Double, units: String = "metric", lang: String = "en") {
         lastLat = lat
         lastLon = lon
-        lastSearchedCity = null // Clear city since we are using GPS
+        lastSearchedCity = null
 
         viewModelScope.launch {
             repository.getWeatherByCoordinates(lat, lon, units, lang).collect { result ->
-                when (result) {
-                    is Resource.Loading -> {
-                        // Only show main loading if we don't have data yet
-                        if (_uiState.value.weatherData == null) {
-                            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-                        }
-                    }
-                    is Resource.Success -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            weatherData = result.data,
-                            error = null
-                        )
-                    }
-                    is Resource.Error -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            isRefreshing = false,
-                            // Don't show an error string if we are just offline and already have cached data
-                            error = if (_uiState.value.weatherData == null) result.message else null
-                        )
-                    }
+                handleResult(result)
+            }
+        }
+    }
+
+    private fun handleResult(result: Resource<WeatherResponse>) {
+        when (result) {
+            is Resource.Loading -> {
+                // Only show main loading if we don't have data yet
+                if (_uiState.value.weatherData == null) {
+                    _uiState.value = _uiState.value.copy(isLoading = true, error = null)
                 }
+            }
+            is Resource.Success -> {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    isRefreshing = false,
+                    weatherData = result.data,
+                    error = null
+                )
+            }
+            is Resource.Error -> {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    isRefreshing = false,
+                    // Don't show an error string if we are just offline and already have cached data
+                    error = if (_uiState.value.weatherData == null) result.message else null
+                )
             }
         }
     }

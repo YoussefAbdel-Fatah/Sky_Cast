@@ -3,6 +3,8 @@ package com.example.skycast.data.settings
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
+    fun getMapLocation(): Flow<Pair<Double, Double>?>
+    suspend fun saveMapLocation(lat: Double, lon: Double)
     fun getLocationMethod(): Flow<String>
     suspend fun saveLocationMethod(method: String)
 
