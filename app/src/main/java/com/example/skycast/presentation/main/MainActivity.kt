@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // 3. Display the HomeScreen and pass the ViewModel
-                    HomeScreen(viewModel = viewModel)
+                    MainScreen(homeViewModel = viewModel)
                 }
             }
         }

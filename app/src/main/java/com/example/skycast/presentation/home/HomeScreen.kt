@@ -71,16 +71,6 @@ fun HomeScreen(
                         Text("SkyCast", fontWeight = FontWeight.Bold, fontSize = 20.sp, color = TextPrimary)
                     }
                 },
-                navigationIcon = {
-                    IconButton(onClick = { /* Open Drawer */ }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu", tint = TextPrimary)
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { /* Open Search */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search", tint = TextPrimary)
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
             )
         },
