@@ -41,6 +41,15 @@ fun HomeScreen(
     viewModel: HomeViewModel // 1. Pass the ViewModel in
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val tempSymbol = when (uiState.tempUnit) {
+        "imperial" -> "°F"
+        "standard" -> "K"
+        else -> "°C"
+    }
+    val windSymbol = when (uiState.windUnit) {
+        "imperial" -> "mph"
+        else -> "m/s"
+    }
     val scrollState = rememberScrollState()
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -142,10 +151,10 @@ fun HomeScreen(
 
                     // Main Top Card
                     MainWeatherCard(
-                        temperature = "${currentWeather.mainWeather.temp.toInt()}°C",
+                        temperature = "${currentWeather.mainWeather.temp.toInt()}$tempSymbol",
                         city = weatherData.city.name,
                         description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "Clear",
-                        highLow = "H: ${currentWeather.mainWeather.tempMax.toInt()}°  L: ${currentWeather.mainWeather.tempMin.toInt()}°",
+                        highLow = "Max: ${currentWeather.mainWeather.tempMax.toInt()}$tempSymbol  Min: ${currentWeather.mainWeather.tempMin.toInt()}$tempSymbol",
                         icon = painterResource(id = android.R.drawable.ic_menu_gallery)
                     )
 
@@ -162,7 +171,7 @@ fun HomeScreen(
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_send),
                             label = "Wind Speed",
-                            value = "${currentWeather.wind.speed} m/s",
+                            value = "${currentWeather.wind.speed} $windSymbol",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -192,7 +201,7 @@ fun HomeScreen(
                             HourlyForecastItem(
                                 time = formatTime(forecast.dtTxt),
                                 icon = painterResource(id = android.R.drawable.ic_menu_gallery),
-                                temperature = "${forecast.mainWeather.temp.toInt()}°",
+                                temperature = "${forecast.mainWeather.temp.toInt()}$tempSymbol",
                                 isActive = hourlyForecast.indexOf(forecast) == 0
                             )
                         }
@@ -209,8 +218,8 @@ fun HomeScreen(
                             day = formatDate(forecast.dtTxt),
                             icon = painterResource(id = android.R.drawable.ic_menu_gallery),
                             status = forecast.weather.firstOrNull()?.main ?: "Clear",
-                            highTemp = "${forecast.mainWeather.tempMax.toInt()}°",
-                            lowTemp = "${forecast.mainWeather.tempMin.toInt()}°"
+                            highTemp = "Max: ${forecast.mainWeather.tempMax.toInt()}$tempSymbol",
+                            lowTemp = "Min: ${forecast.mainWeather.tempMin.toInt()}$tempSymbol"
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }

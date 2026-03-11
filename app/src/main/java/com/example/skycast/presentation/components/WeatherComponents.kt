@@ -222,8 +222,8 @@ fun DailyForecastItem(
                 )
             }
 
-            Row(
-                horizontalArrangement = Arrangement.End,
+            Column(
+                horizontalAlignment = Alignment.End,
                 modifier = Modifier.weight(0.8f)
             ) {
                 Text(

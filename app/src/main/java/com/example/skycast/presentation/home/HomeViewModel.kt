@@ -4,11 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.skycast.data.location.LocationTracker
 import com.example.skycast.data.repository.WeatherRepository
+import com.example.skycast.data.settings.SettingsRepository
 import com.example.skycast.utils.NetworkObserver
 import com.example.skycast.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -16,7 +19,8 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     private val repository: WeatherRepository,
     private val networkObserver: NetworkObserver,
-    private val locationTracker: LocationTracker
+    private val locationTracker: LocationTracker,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -26,12 +30,39 @@ class HomeViewModel(
     private var lastSearchedCity: String? = null
     private var lastLat: Double? = null
     private var lastLon: Double? = null
+    private var currentLocationMethod = "gps"
+    private var currentLang = "en"
 
     init {
-        // Start observing network changes immediately
         observeNetwork()
+        observeSettings()
     }
 
+    private fun observeSettings() {
+        viewModelScope.launch {
+            // Combine listens to all 4 flows. If ANY of them change, this block runs.
+            combine(
+                settingsRepository.getLocationMethod(),
+                settingsRepository.getTemperatureUnit(),
+                settingsRepository.getWindUnit(),
+                settingsRepository.getLanguage()
+            ) { loc, temp, wind, lang ->
+
+                val settingsChanged = _uiState.value.tempUnit != temp || currentLang != lang || currentLocationMethod != loc
+
+                currentLocationMethod = loc
+                currentLang = lang
+
+                // Update the state with the new units
+                _uiState.value = _uiState.value.copy(tempUnit = temp, windUnit = wind)
+
+                // If settings actually changed (or if it's the very first time loading), fetch new data
+                if (_uiState.value.weatherData == null || settingsChanged) {
+                    loadWeatherInfo()
+                }
+            }.collect()
+        }
+    }
     private fun observeNetwork() {
         networkObserver.observe().onEach { isOnline ->
             val wasOffline = _uiState.value.isOffline

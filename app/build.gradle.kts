@@ -85,4 +85,8 @@ dependencies {
 
     // 7. Google Play Services Location (To get the user's GPS location)
     implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    // 8. DataStore
+    // Preferences DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

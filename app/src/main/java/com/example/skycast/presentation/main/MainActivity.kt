@@ -1,5 +1,6 @@
 package com.example.skycast.presentation.main
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,18 +9,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import com.example.skycast.data.local.WeatherDatabase
 import com.example.skycast.data.local.WeatherLocalDataSourceImpl
 import com.example.skycast.data.location.DefaultLocationTracker
 import com.example.skycast.data.remote.RetrofitClient
 import com.example.skycast.data.remote.WeatherRemoteDataSourceImp
 import com.example.skycast.data.repository.WeatherRepositoryImp
+import com.example.skycast.data.settings.SettingsRepositoryImpl
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.home.HomeViewModelFactory
+import com.example.skycast.presentation.settings.SettingsViewModel
+import com.example.skycast.presentation.settings.SettingsViewModelFactory
 import com.example.skycast.presentation.theme.WeatherAppTheme
 import com.example.skycast.utils.NetworkObserver
 import com.google.android.gms.location.LocationServices
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "skycast_settings")
 
 class MainActivity : ComponentActivity() {
 
@@ -35,10 +44,16 @@ class MainActivity : ComponentActivity() {
     private val repository by lazy { WeatherRepositoryImp(remoteDataSource, localDataSource) }
     private val fusedLocationClient by lazy { LocationServices.getFusedLocationProviderClient(this) }
     private val locationTracker by lazy { DefaultLocationTracker(fusedLocationClient, application) }
-    private val factory by lazy { HomeViewModelFactory(repository, networkObserver, locationTracker) }
+    private val settingsRepository by lazy { SettingsRepositoryImpl(applicationContext.dataStore) }
+    private val settingsFactory by lazy { SettingsViewModelFactory(settingsRepository) }
+    private val settingsViewModel: SettingsViewModel by viewModels { settingsFactory }
+    private val factory by lazy { HomeViewModelFactory(repository, networkObserver, locationTracker, settingsRepository) }
 
     // by viewModels is like by lazy but for ViewModels and it is used to initialize the ViewModel only once.
     private val viewModel: HomeViewModel by viewModels { factory }
+
+    // Inject the DataStore into the Repository
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     // 3. Display the HomeScreen and pass the ViewModel
-                    MainScreen(homeViewModel = viewModel)
+                    MainScreen(homeViewModel = viewModel, settingsViewModel = settingsViewModel)
                 }
             }
         }

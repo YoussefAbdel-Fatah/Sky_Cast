@@ -7,5 +7,7 @@ data class HomeUiState(
     val isRefreshing: Boolean = false,
     val isOffline: Boolean = false, // Track network status
     val weatherData: WeatherResponse? = null,
-    val error: String? = null
+    val error: String? = null,
+    val tempUnit: String = "metric",
+    val windUnit: String = "metric"
 )

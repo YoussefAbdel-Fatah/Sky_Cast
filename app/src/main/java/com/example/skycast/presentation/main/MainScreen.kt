@@ -17,11 +17,13 @@ import androidx.navigation.compose.rememberNavController
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.navigation.Screen
+import com.example.skycast.presentation.settings.SettingsScreen
+import com.example.skycast.presentation.settings.SettingsViewModel
 import com.example.skycast.presentation.theme.BackgroundLight
 import com.example.skycast.presentation.theme.SkyBlue
 
 @Composable
-fun MainScreen(homeViewModel: HomeViewModel) {
+fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewModel) {
     val navController = rememberNavController()
 
     val screens = listOf(
@@ -87,8 +89,7 @@ fun MainScreen(homeViewModel: HomeViewModel) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Alerts Screen") }
             }
             composable(Screen.Settings.route) {
-                // Dummy screen for now
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Settings Screen") }
+                SettingsScreen(viewModel = settingsViewModel)
             }
         }
     }
