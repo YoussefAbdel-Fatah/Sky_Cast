@@ -7,9 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.skycast"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.skycast"
@@ -38,6 +36,10 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+ksp {
+    arg("room.generateKotlin", "true")
 }
 
 dependencies {
@@ -69,8 +71,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0") // Helps debug network calls
 
     // 4. Room Database (To save favorite locations locally)
-    val room_version = "2.6.1"
-    //Room
+    val room_version = "2.7.0-alpha11"
     implementation ("androidx.room:room-ktx:${room_version}")
     implementation("androidx.room:room-runtime:${room_version}")
     ksp("androidx.room:room-compiler:$room_version")
