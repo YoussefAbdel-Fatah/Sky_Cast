@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.skycast.data.local.WeatherDatabase
 import com.example.skycast.data.local.WeatherLocalDataSourceImpl
 import com.example.skycast.data.location.DefaultLocationTracker
@@ -23,6 +26,7 @@ import com.example.skycast.data.repository.AlertsRepository
 import com.example.skycast.data.repository.FavoritesRepository
 import com.example.skycast.data.repository.WeatherRepositoryImp
 import com.example.skycast.data.repository.SettingsRepositoryImpl
+import com.example.skycast.data.worker.WeatherAlertWorker
 import com.example.skycast.presentation.alerts.AlertsViewModel
 import com.example.skycast.presentation.alerts.AlertsViewModelFactory
 import com.example.skycast.presentation.favorites.FavoritesViewModel
@@ -37,9 +41,9 @@ import com.example.skycast.presentation.settings.SettingsViewModel
 import com.example.skycast.presentation.settings.SettingsViewModelFactory
 import com.example.skycast.presentation.theme.WeatherAppTheme
 import com.example.skycast.utils.NetworkObserver
+import com.example.skycast.utils.dataStore
 import com.google.android.gms.location.LocationServices
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "skycast_settings")
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
 
@@ -80,8 +84,9 @@ class MainActivity : ComponentActivity() {
     private val alertsRepository by lazy {
         AlertsRepository(WeatherDatabase.getDatabase(applicationContext).alertDao())
     }
+    private val workManager by lazy { WorkManager.getInstance(applicationContext) }
     private val alertsFactory by lazy {
-        AlertsViewModelFactory(alertsRepository)
+        AlertsViewModelFactory(alertsRepository, workManager)
     }
     private val alertsViewModel: AlertsViewModel by viewModels { alertsFactory }
 
