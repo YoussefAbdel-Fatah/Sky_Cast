@@ -31,6 +31,7 @@ import org.osmdroid.views.overlay.Marker
 @Composable
 fun MapScreen(
     viewModel: MapViewModel,
+    isFromFavorites: Boolean,
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -39,8 +40,43 @@ fun MapScreen(
 
     var searchQuery by remember { mutableStateOf("") }
 
+    // State for the Dialog
+    var showNameDialog by remember { mutableStateOf(false) }
+    var favoriteCityName by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         Configuration.getInstance().userAgentValue = context.packageName
+    }
+
+    // The Dialog UI
+    if (showNameDialog) {
+        AlertDialog(
+            onDismissRequest = { showNameDialog = false },
+            title = { Text("Name this location") },
+            text = {
+                OutlinedTextField(
+                    value = favoriteCityName,
+                    onValueChange = { favoriteCityName = it },
+                    placeholder = { Text("e.g. Grandma's House, Tokyo...") },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    if (favoriteCityName.isNotBlank()) {
+                        viewModel.saveToFavorites(favoriteCityName) {
+                            showNameDialog = false
+                            onNavigateBack()
+                        }
+                    }
+                }) {
+                    Text("Save", color = SkyBlue)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNameDialog = false }) { Text("Cancel") }
+            }
+        )
     }
 
     Scaffold(
@@ -58,7 +94,14 @@ fun MapScreen(
         floatingActionButton = {
             if (selectedLocation != null) {
                 FloatingActionButton(
-                    onClick = { viewModel.saveLocationAndSetMethod { onNavigateBack() } },
+                    onClick = {
+                        if (isFromFavorites) {
+                            favoriteCityName = searchQuery.split(",").firstOrNull() ?: ""
+                            showNameDialog = true
+                        } else {
+                            viewModel.saveLocationAndSetMethod { onNavigateBack() }
+                        }
+                    },
                     containerColor = SkyBlue
                 ) {
                     Icon(Icons.Default.Check, contentDescription = "Save", tint = androidx.compose.ui.graphics.Color.White)

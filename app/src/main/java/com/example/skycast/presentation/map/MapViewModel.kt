@@ -3,7 +3,9 @@ package com.example.skycast.presentation.map
 import LocationSearchRepository
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.skycast.data.local.entity.FavoriteEntity
 import com.example.skycast.data.remote.response.NominatimResponse
+import com.example.skycast.data.repository.FavoritesRepository
 import com.example.skycast.data.repository.SettingsRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 
 class MapViewModel(
     private val settingsRepository: SettingsRepository,
-    private val searchRepository: LocationSearchRepository
+    private val searchRepository: LocationSearchRepository,
+    private val favoritesRepository: FavoritesRepository
 ) : ViewModel() {
 
     // Pair of Latitude and Longitude
@@ -63,6 +66,21 @@ class MapViewModel(
                 // Automatically switch the location method to "map" so Home Screen updates
                 settingsRepository.saveLocationMethod("map")
 
+                onSaveComplete()
+            }
+        }
+    }
+
+    fun saveToFavorites(cityName: String, onSaveComplete: () -> Unit) {
+        val location = _selectedLocation.value
+        if (location != null) {
+            viewModelScope.launch {
+                val favorite = FavoriteEntity(
+                    cityName = cityName,
+                    lat = location.first,
+                    lon = location.second
+                )
+                favoritesRepository.addFavorite(favorite)
                 onSaveComplete()
             }
         }

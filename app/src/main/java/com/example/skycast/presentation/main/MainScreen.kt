@@ -10,10 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.skycast.presentation.favorites.FavoritesScreen
+import com.example.skycast.presentation.favorites.FavoritesViewModel
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.map.MapScreen
@@ -25,7 +29,12 @@ import com.example.skycast.presentation.theme.BackgroundLight
 import com.example.skycast.presentation.theme.SkyBlue
 
 @Composable
-fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewModel, mapViewModel: MapViewModel) {
+fun MainScreen(
+    homeViewModel: HomeViewModel,
+    settingsViewModel: SettingsViewModel,
+    mapViewModel: MapViewModel,
+    favoritesViewModel: FavoritesViewModel
+) {
     val navController = rememberNavController()
 
     val screens = listOf(
@@ -46,7 +55,12 @@ fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewMode
 
                 screens.forEach { screen ->
                     NavigationBarItem(
-                        icon = { Icon(imageVector = screen.icon, contentDescription = screen.title) },
+                        icon = {
+                            Icon(
+                                imageVector = screen.icon,
+                                contentDescription = screen.title
+                            )
+                        },
                         label = { Text(text = screen.title) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         colors = NavigationBarItemDefaults.colors(
@@ -54,7 +68,9 @@ fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewMode
                             selectedTextColor = SkyBlue,
                             unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                             unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(LocalAbsoluteTonalElevation.current)
+                            indicatorColor = MaterialTheme.colorScheme.surfaceColorAtElevation(
+                                LocalAbsoluteTonalElevation.current
+                            )
                         ),
                         onClick = {
                             navController.navigate(screen.route) {
@@ -83,24 +99,40 @@ fun MainScreen(homeViewModel: HomeViewModel, settingsViewModel: SettingsViewMode
                 HomeScreen(viewModel = homeViewModel)
             }
             composable(Screen.Favorites.route) {
-                // Dummy screen for now
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Favorites Screen") }
+                FavoritesScreen(
+                    viewModel = favoritesViewModel,
+                    onNavigateToMap = {
+                        navController.navigate(Screen.Map.createRoute(isFromFavorites = true))
+                    },
+                    onNavigateToDetails = { lat, lon ->
+                    }
+
+                )
             }
             composable(Screen.Alerts.route) {
                 // Dummy screen for now
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("Alerts Screen") }
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) { Text("Alerts Screen") }
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     viewModel = settingsViewModel,
                     onNavigateToMap = {
-                        navController.navigate(Screen.Map.route)
+                        navController.navigate(Screen.Map.createRoute(isFromFavorites = false))
                     }
-                    )
+                )
             }
-            composable(Screen.Map.route) {
+            composable(
+                route = Screen.Map.route,
+                arguments = listOf(navArgument("isFromFavorites") { type = NavType.BoolType })
+            ) { backStackEntry ->
+                val isFromFavorites = backStackEntry.arguments?.getBoolean("isFromFavorites") ?: false
+
                 MapScreen(
                     viewModel = mapViewModel,
+                    isFromFavorites = isFromFavorites,
                     onNavigateBack = { navController.popBackStack() }
                 )
             }
