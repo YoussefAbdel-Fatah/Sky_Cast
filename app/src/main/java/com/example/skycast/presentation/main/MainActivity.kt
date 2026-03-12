@@ -21,6 +21,10 @@ import com.example.skycast.data.remote.RetrofitWeatherClient
 import com.example.skycast.data.remote.WeatherRemoteDataSourceImp
 import com.example.skycast.data.repository.WeatherRepositoryImp
 import com.example.skycast.data.repository.SettingsRepositoryImpl
+import com.example.skycast.presentation.favorites.FavoritesViewModel
+import com.example.skycast.presentation.favorites.FavoritesViewModelFactory
+import com.example.skycast.presentation.favorites.details.DetailsViewModel
+import com.example.skycast.presentation.favorites.details.DetailsViewModelFactory
 import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.home.HomeViewModelFactory
 import com.example.skycast.presentation.map.MapViewModel
@@ -59,9 +63,13 @@ class MainActivity : ComponentActivity() {
         com.example.skycast.data.repository.FavoritesRepository(WeatherDatabase.getDatabase(applicationContext).favoriteDao())
     }
     private val favoritesFactory by lazy {
-        com.example.skycast.presentation.favorites.FavoritesViewModelFactory(favoritesRepository)
+        FavoritesViewModelFactory(favoritesRepository)
     }
-    private val favoritesViewModel: com.example.skycast.presentation.favorites.FavoritesViewModel by viewModels { favoritesFactory }
+    private val detailsFactory by lazy {
+        DetailsViewModelFactory(repository, settingsRepository)
+    }
+    private val detailsViewModel: DetailsViewModel by viewModels { detailsFactory }
+    private val favoritesViewModel: FavoritesViewModel by viewModels { favoritesFactory }
     private val factory by lazy { HomeViewModelFactory(repository, networkObserver, locationTracker, settingsRepository) }
 
     // by viewModels is like by lazy but for ViewModels and it is used to initialize the ViewModel only once.
@@ -85,7 +93,8 @@ class MainActivity : ComponentActivity() {
                         homeViewModel = viewModel,
                         settingsViewModel = settingsViewModel,
                         mapViewModel = mapViewModel,
-                        favoritesViewModel = favoritesViewModel
+                        favoritesViewModel = favoritesViewModel,
+                        detailsViewModel = detailsViewModel
                     )
                 }
             }

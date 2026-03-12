@@ -15,4 +15,8 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector 
     object Map : Screen("map/{isFromFavorites}", "Map") {
         fun createRoute(isFromFavorites: Boolean) = "map/$isFromFavorites"
     }
+    object Details : Screen("details/{lat}/{lon}", "Details") {
+        fun createRoute(lat: Double, lon: Double) = "details/$lat/$lon"
+
+    }
 }

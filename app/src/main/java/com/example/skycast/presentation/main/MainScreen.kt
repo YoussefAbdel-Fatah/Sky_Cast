@@ -18,6 +18,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.skycast.presentation.favorites.FavoritesScreen
 import com.example.skycast.presentation.favorites.FavoritesViewModel
+import com.example.skycast.presentation.favorites.details.DetailsScreen
+import com.example.skycast.presentation.favorites.details.DetailsViewModel
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.home.HomeViewModel
 import com.example.skycast.presentation.map.MapScreen
@@ -33,7 +35,8 @@ fun MainScreen(
     homeViewModel: HomeViewModel,
     settingsViewModel: SettingsViewModel,
     mapViewModel: MapViewModel,
-    favoritesViewModel: FavoritesViewModel
+    favoritesViewModel: FavoritesViewModel,
+    detailsViewModel: DetailsViewModel
 ) {
     val navController = rememberNavController()
 
@@ -105,8 +108,26 @@ fun MainScreen(
                         navController.navigate(Screen.Map.createRoute(isFromFavorites = true))
                     },
                     onNavigateToDetails = { lat, lon ->
+                        navController.navigate(Screen.Details.createRoute(lat, lon))
                     }
 
+                )
+            }
+            composable(
+                route = Screen.Details.route,
+                arguments = listOf(
+                    navArgument("lat") { type = NavType.FloatType }, // FloatType is used because Compose Navigation doesn't have DoubleType natively
+                    navArgument("lon") { type = NavType.FloatType }
+                )
+            ) { backStackEntry ->
+                val lat = backStackEntry.arguments?.getFloat("lat")?.toDouble() ?: 0.0
+                val lon = backStackEntry.arguments?.getFloat("lon")?.toDouble() ?: 0.0
+
+                DetailsScreen(
+                    lat = lat,
+                    lon = lon,
+                    viewModel = detailsViewModel,
+                    onNavigateBack = { navController.popBackStack() }
                 )
             }
             composable(Screen.Alerts.route) {

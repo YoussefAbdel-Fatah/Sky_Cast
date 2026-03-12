@@ -10,6 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -29,6 +32,31 @@ fun FavoritesScreen(
     onNavigateToDetails: (Double, Double) -> Unit // We'll use this later to open the details screen
 ) {
     val favorites by viewModel.favoritesList.collectAsState()
+
+    var itemToDelete by remember { mutableStateOf<FavoriteEntity?>(null) }
+
+    if (itemToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { itemToDelete = null },
+            title = { Text("Remove Favorite") },
+            text = { Text("Are you sure you want to remove ${itemToDelete?.cityName} from your favorites?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.removeFavorite(itemToDelete!!)
+                        itemToDelete = null // Hide dialog
+                    }
+                ) {
+                    Text("Yes", color = MaterialTheme.colorScheme.error) // Red color for delete action
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { itemToDelete = null }) {
+                    Text("No", color = SkyBlue)
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -63,7 +91,7 @@ fun FavoritesScreen(
                     FavoriteItemCard(
                         favorite = favorite,
                         onClick = { onNavigateToDetails(favorite.lat, favorite.lon) },
-                        onDelete = { viewModel.removeFavorite(favorite) }
+                        onDelete = { itemToDelete = favorite }
                     )
                 }
             }
