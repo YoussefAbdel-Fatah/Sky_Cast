@@ -16,6 +16,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.skycast.presentation.alerts.AlertsScreen
+import com.example.skycast.presentation.alerts.AlertsViewModel
 import com.example.skycast.presentation.favorites.FavoritesScreen
 import com.example.skycast.presentation.favorites.FavoritesViewModel
 import com.example.skycast.presentation.favorites.details.DetailsScreen
@@ -36,7 +38,8 @@ fun MainScreen(
     settingsViewModel: SettingsViewModel,
     mapViewModel: MapViewModel,
     favoritesViewModel: FavoritesViewModel,
-    detailsViewModel: DetailsViewModel
+    detailsViewModel: DetailsViewModel,
+    alertsViewModel: AlertsViewModel
 ) {
     val navController = rememberNavController()
 
@@ -131,11 +134,7 @@ fun MainScreen(
                 )
             }
             composable(Screen.Alerts.route) {
-                // Dummy screen for now
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) { Text("Alerts Screen") }
+                AlertsScreen(viewModel = alertsViewModel)
             }
             composable(Screen.Settings.route) {
                 SettingsScreen(

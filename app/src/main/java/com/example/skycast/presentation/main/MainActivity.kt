@@ -19,8 +19,12 @@ import com.example.skycast.data.location.DefaultLocationTracker
 import com.example.skycast.data.remote.RetrofitNominatimClient
 import com.example.skycast.data.remote.RetrofitWeatherClient
 import com.example.skycast.data.remote.WeatherRemoteDataSourceImp
+import com.example.skycast.data.repository.AlertsRepository
+import com.example.skycast.data.repository.FavoritesRepository
 import com.example.skycast.data.repository.WeatherRepositoryImp
 import com.example.skycast.data.repository.SettingsRepositoryImpl
+import com.example.skycast.presentation.alerts.AlertsViewModel
+import com.example.skycast.presentation.alerts.AlertsViewModelFactory
 import com.example.skycast.presentation.favorites.FavoritesViewModel
 import com.example.skycast.presentation.favorites.FavoritesViewModelFactory
 import com.example.skycast.presentation.favorites.details.DetailsViewModel
@@ -60,22 +64,26 @@ class MainActivity : ComponentActivity() {
     private val mapFactory by lazy { MapViewModelFactory(settingsRepository, locationSearchRepository, favoritesRepository) }
     private val mapViewModel: MapViewModel by viewModels { mapFactory }
     private val favoritesRepository by lazy {
-        com.example.skycast.data.repository.FavoritesRepository(WeatherDatabase.getDatabase(applicationContext).favoriteDao())
+        FavoritesRepository(WeatherDatabase.getDatabase(applicationContext).favoriteDao())
     }
     private val favoritesFactory by lazy {
         FavoritesViewModelFactory(favoritesRepository)
     }
+    private val favoritesViewModel: FavoritesViewModel by viewModels { favoritesFactory }
     private val detailsFactory by lazy {
         DetailsViewModelFactory(repository, settingsRepository)
     }
     private val detailsViewModel: DetailsViewModel by viewModels { detailsFactory }
-    private val favoritesViewModel: FavoritesViewModel by viewModels { favoritesFactory }
     private val factory by lazy { HomeViewModelFactory(repository, networkObserver, locationTracker, settingsRepository) }
-
     // by viewModels is like by lazy but for ViewModels and it is used to initialize the ViewModel only once.
     private val viewModel: HomeViewModel by viewModels { factory }
-
-    // Inject the DataStore into the Repository
+    private val alertsRepository by lazy {
+        AlertsRepository(WeatherDatabase.getDatabase(applicationContext).alertDao())
+    }
+    private val alertsFactory by lazy {
+        AlertsViewModelFactory(alertsRepository)
+    }
+    private val alertsViewModel: AlertsViewModel by viewModels { alertsFactory }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -94,7 +102,8 @@ class MainActivity : ComponentActivity() {
                         settingsViewModel = settingsViewModel,
                         mapViewModel = mapViewModel,
                         favoritesViewModel = favoritesViewModel,
-                        detailsViewModel = detailsViewModel
+                        detailsViewModel = detailsViewModel,
+                        alertsViewModel = alertsViewModel
                     )
                 }
             }
