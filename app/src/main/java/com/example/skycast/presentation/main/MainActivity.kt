@@ -71,7 +71,7 @@ class MainActivity : ComponentActivity() {
         FavoritesRepository(WeatherDatabase.getDatabase(applicationContext).favoriteDao())
     }
     private val favoritesFactory by lazy {
-        FavoritesViewModelFactory(favoritesRepository)
+        FavoritesViewModelFactory(favoritesRepository, networkObserver)
     }
     private val favoritesViewModel: FavoritesViewModel by viewModels { favoritesFactory }
     private val detailsFactory by lazy {

@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -106,11 +107,13 @@ fun MainScreen(
             }
             composable(Screen.Favorites.route) {
                 FavoritesScreen(
+                    context = LocalContext.current,
                     viewModel = favoritesViewModel,
                     onNavigateToMap = {
                         navController.navigate(Screen.Map.createRoute(isFromFavorites = true))
                     },
                     onNavigateToDetails = { lat, lon ->
+
                         navController.navigate(Screen.Details.createRoute(lat, lon))
                     }
 

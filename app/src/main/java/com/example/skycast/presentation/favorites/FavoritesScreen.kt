@@ -1,5 +1,7 @@
 package com.example.skycast.presentation.favorites
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,11 +29,13 @@ import com.example.skycast.presentation.theme.SurfaceWhite
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoritesScreen(
+    context: Context,
     viewModel: FavoritesViewModel,
     onNavigateToMap: () -> Unit,
     onNavigateToDetails: (Double, Double) -> Unit // We'll use this later to open the details screen
 ) {
     val favorites by viewModel.favoritesList.collectAsState()
+    val isOnline by viewModel.isOnline.collectAsState()
 
     var itemToDelete by remember { mutableStateOf<FavoriteEntity?>(null) }
 
@@ -47,7 +51,10 @@ fun FavoritesScreen(
                         itemToDelete = null // Hide dialog
                     }
                 ) {
-                    Text("Yes", color = MaterialTheme.colorScheme.error) // Red color for delete action
+                    Text(
+                        "Yes",
+                        color = MaterialTheme.colorScheme.error
+                    ) // Red color for delete action
                 }
             },
             dismissButton = {
@@ -70,14 +77,27 @@ fun FavoritesScreen(
                 onClick = onNavigateToMap,
                 containerColor = SkyBlue
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Favorite", tint = androidx.compose.ui.graphics.Color.White)
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Add Favorite",
+                    tint = androidx.compose.ui.graphics.Color.White
+                )
             }
         },
         containerColor = BackgroundLight
     ) { paddingValues ->
         if (favorites.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text("No favorites added yet.", fontSize = 16.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "No favorites added yet.",
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         } else {
             LazyColumn(
@@ -90,7 +110,17 @@ fun FavoritesScreen(
                 items(favorites) { favorite ->
                     FavoriteItemCard(
                         favorite = favorite,
-                        onClick = { onNavigateToDetails(favorite.lat, favorite.lon) },
+                        onClick = {
+                            if (isOnline) {
+                                onNavigateToDetails(favorite.lat, favorite.lon)
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "No internet, no entry! 🌐🚫",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        },
                         onDelete = { itemToDelete = favorite }
                     )
                 }
@@ -125,7 +155,11 @@ fun FavoriteItemCard(
                 fontWeight = FontWeight.Medium
             )
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, contentDescription = "Remove Favorite", tint = MaterialTheme.colorScheme.error)
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Remove Favorite",
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     }

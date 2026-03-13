@@ -35,6 +35,8 @@ class HomeViewModel(
     private var currentLocationMethod = "gps"
     private var currentLang = "en"
 
+
+
     init {
         observeNetwork()
         observeSettings()
