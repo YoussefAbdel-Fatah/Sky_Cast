@@ -101,6 +101,8 @@ class WeatherAlertWorker(
                 // 6. Fire the Alert!
                 if (title.isNotEmpty()) {
                     notificationHelper.triggerAlert(title, message, triggeredAlert.isAlarm)
+                    // turn the alert off in the database so it doesn't fire again
+                    alertDao.updateAlert(triggeredAlert.copy(isEnabled = false))
                 }
             }
         } catch (e: Exception) {
