@@ -1,6 +1,7 @@
 package com.example.skycast.data.worker
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.skycast.data.local.WeatherDatabase
@@ -18,6 +19,7 @@ class WeatherAlertWorker(
 ) : CoroutineWorker(context, workerParams) {
 
     override suspend fun doWork(): Result {
+        Log.d("WeatherApp", "Worker checking weather at ${Calendar.getInstance().time}")
         // 1. Initialize our tools
         val database = WeatherDatabase.getDatabase(context)
         val alertDao = database.alertDao()
@@ -72,6 +74,7 @@ class WeatherAlertWorker(
                 // 5. Check for Rain, Snow, or Extreme Wind
                 val weatherCondition = currentWeather.weather.firstOrNull()?.main?.lowercase() ?: ""
                 val windSpeed = currentWeather.wind.speed
+                Log.d("WeatherApp", "Weather Condition: $weatherCondition, Wind Speed: $windSpeed at ${Calendar.getInstance().time}")
 
                 // Adjust threshold based on user's selected wind unit (10 m/s is roughly 22 mph)
                 val windThreshold = if (windUnit == "imperial") 22.0 else 10.0
@@ -85,7 +88,7 @@ class WeatherAlertWorker(
                 } else if (weatherCondition.contains("snow")) {
                     title = "Snow Alert ❄\uFE0F"
                     message = "Snow is expected. Bundle up!"
-                } else if (windSpeed > 0) { //TODO windSpeed > windThreshold
+                } else if (windSpeed > windThreshold) {
                     title = "High Wind Warning \uD83C\uDF2C\uFE0F"
                     val unitSymbol = if (windUnit == "imperial") "mph" else "m/s"
                     message = "Strong winds detected (${windSpeed} $unitSymbol)."

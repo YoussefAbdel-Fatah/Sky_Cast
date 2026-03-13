@@ -53,10 +53,10 @@ class AlertsViewModel(
     }
 
     private fun startWorkManager() {
-        val workRequest = PeriodicWorkRequestBuilder<WeatherAlertWorker>(1, TimeUnit.HOURS).build()
+        val workRequest = PeriodicWorkRequestBuilder<WeatherAlertWorker>(15, TimeUnit.MINUTES).build()
         workManager.enqueueUniquePeriodicWork(
             WORK_NAME,
-            ExistingPeriodicWorkPolicy.KEEP, // Keep the existing schedule if it's already running
+            ExistingPeriodicWorkPolicy.UPDATE, // Keep the existing schedule if it's already running
             workRequest
         )
     }
