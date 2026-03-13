@@ -7,22 +7,27 @@ import com.example.skycast.data.local.entity.FavoriteEntity
 import com.example.skycast.data.remote.response.NominatimResponse
 import com.example.skycast.data.repository.FavoritesRepository
 import com.example.skycast.data.repository.SettingsRepository
+import com.example.skycast.data.repository.WeatherRepository
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class MapViewModel(
     private val settingsRepository: SettingsRepository,
     private val searchRepository: LocationSearchRepository,
-    private val favoritesRepository: FavoritesRepository
+    private val favoritesRepository: FavoritesRepository,
+    private val weatherRepository: WeatherRepository
 ) : ViewModel() {
 
     // Pair of Latitude and Longitude
     private val _selectedLocation = MutableStateFlow<Pair<Double, Double>?>(null)
     val selectedLocation: StateFlow<Pair<Double, Double>?> = _selectedLocation.asStateFlow()
+
     // Search States
     private val _searchResults = MutableStateFlow<List<NominatimResponse>>(emptyList())
     val searchResults: StateFlow<List<NominatimResponse>> = _searchResults.asStateFlow()
@@ -31,6 +36,7 @@ class MapViewModel(
     val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
 
     private var searchJob: Job? = null
+
     // Call this from the UI when the user types
     fun onSearchQueryChanged(query: String) {
         searchJob?.cancel() // Cancel previous search if they are typing fast
@@ -61,10 +67,19 @@ class MapViewModel(
         val location = _selectedLocation.value
         if (location != null) {
             viewModelScope.launch {
+                val lat = location.first
+                val lon = location.second
                 // Save the exact coordinates
-                settingsRepository.saveMapLocation(location.first, location.second)
+                settingsRepository.saveMapLocation(lat, lon)
                 // Automatically switch the location method to "map" so Home Screen updates
                 settingsRepository.saveLocationMethod("map")
+
+                val tempUnit = settingsRepository.getTemperatureUnit().first()
+                val lang = settingsRepository.getLanguage().first()
+                // Fetch the weather silently!
+                // Because our WeatherRepository is designed to cache successful responses,
+                // just collecting this flow forces it to download and save to Room.
+                weatherRepository.getWeatherByCoordinates(lat, lon, tempUnit, lang).collect()
 
                 onSaveComplete()
             }

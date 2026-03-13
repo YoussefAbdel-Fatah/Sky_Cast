@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
     private val settingsRepository by lazy { SettingsRepositoryImpl(applicationContext.dataStore) }
     private val settingsFactory by lazy { SettingsViewModelFactory(settingsRepository) }
     private val settingsViewModel: SettingsViewModel by viewModels { settingsFactory }
-    private val mapFactory by lazy { MapViewModelFactory(settingsRepository, locationSearchRepository, favoritesRepository) }
+    private val mapFactory by lazy { MapViewModelFactory(settingsRepository, locationSearchRepository, favoritesRepository, repository) }
     private val mapViewModel: MapViewModel by viewModels { mapFactory }
     private val favoritesRepository by lazy {
         FavoritesRepository(WeatherDatabase.getDatabase(applicationContext).favoriteDao())

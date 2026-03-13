@@ -23,6 +23,7 @@ class WeatherAlertWorker(
         // 1. Initialize our tools
         val database = WeatherDatabase.getDatabase(context)
         val alertDao = database.alertDao()
+        val weatherDao = database.weatherDao()
         val apiService = RetrofitWeatherClient.weatherApiService
         val notificationHelper = NotificationHelper(context)
 
@@ -57,10 +58,13 @@ class WeatherAlertWorker(
 
         // 4. Time is valid! Fetch weather to see if we need to warn the user
         try {
-            // Read Coordinates from DataStore
-            val mapLocation = settingsRepository.getMapLocation().first()
-            val lat = mapLocation?.first ?: 48.8566
-            val lon = mapLocation?.second ?: 2.3522
+            val cachedWeather = weatherDao.getCachedWeather()
+
+            // If the user has never loaded the weather, we can't check alerts
+            if (cachedWeather == null) return Result.success()
+
+            val lat = cachedWeather.weatherResponse.city.coord.lat
+            val lon = cachedWeather.weatherResponse.city.coord.lon
             // Read Units from DataStore
             val tempUnit = settingsRepository.getTemperatureUnit().first()
             val windUnit = settingsRepository.getWindUnit().first()
