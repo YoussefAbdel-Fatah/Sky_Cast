@@ -88,7 +88,7 @@ class WeatherAlertWorker(
                 } else if (weatherCondition.contains("snow")) {
                     title = "Snow Alert ❄\uFE0F"
                     message = "Snow is expected. Bundle up!"
-                } else if (windSpeed > windThreshold) {
+                } else if (windSpeed > 0) { //TODO windThreshold: keep it zero for testing and project discussion
                     title = "High Wind Warning \uD83C\uDF2C\uFE0F"
                     val unitSymbol = if (windUnit == "imperial") "mph" else "m/s"
                     message = "Strong winds detected (${windSpeed} $unitSymbol)."
