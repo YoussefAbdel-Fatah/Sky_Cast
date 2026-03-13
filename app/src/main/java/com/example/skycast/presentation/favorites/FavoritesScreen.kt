@@ -116,7 +116,7 @@ fun FavoritesScreen(
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "No internet, no entry! 🌐🚫",
+                                    "No internet, no entry!",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
