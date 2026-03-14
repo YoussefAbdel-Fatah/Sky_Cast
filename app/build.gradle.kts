@@ -60,6 +60,10 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Image Loading
+    implementation("io.coil-kt:coil-compose:2.5.0")
+
     // 1. Compose Navigation (To move between Home, Settings, Favorites, etc.)
     implementation("androidx.navigation:navigation-compose:2.8.0")
 

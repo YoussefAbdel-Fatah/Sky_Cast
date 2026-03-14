@@ -12,6 +12,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import com.example.skycast.presentation.home.HomeScreen
 import com.example.skycast.presentation.theme.*
 
@@ -21,7 +25,7 @@ fun MainWeatherCard(
     city: String,
     description: String,
     highLow: String,
-    icon: Painter,
+    iconCode: String?,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -58,12 +62,24 @@ fun MainWeatherCard(
                     style = AppTypography.labelSmall.copy(fontSize = 12.sp)
                 )
             }
-            Icon(
-                painter = icon,
-                contentDescription = description,
-                tint = SkyBlue,
-                modifier = Modifier.size(80.dp)
-            )
+            if (iconCode != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data("https://openweathermap.org/img/wn/${iconCode}@4x.png")
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = description,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(100.dp)
+                )
+            } else {
+                Icon(
+                    painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                    contentDescription = description,
+                    tint = SkyBlue,
+                    modifier = Modifier.size(80.dp)
+                )
+            }
         }
     }
 }
@@ -111,7 +127,7 @@ fun WeatherDetailsCard(
 @Composable
 fun HourlyForecastItem(
     time: String,
-    icon: Painter,
+    iconCode: String?,
     temperature: String,
     isActive: Boolean = false,
     modifier: Modifier = Modifier
@@ -141,12 +157,24 @@ fun HourlyForecastItem(
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Icon(
-                painter = icon,
-                contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(28.dp)
-            )
+            if (iconCode != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data("https://openweathermap.org/img/wn/${iconCode}@2x.png")
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.size(40.dp)
+                )
+            } else {
+                Icon(
+                    painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                    contentDescription = null,
+                    tint = iconTint,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = temperature,
@@ -166,7 +194,7 @@ fun WeatherPreview() {
         // 2. Call the composable you want to see
         HourlyForecastItem(
             time = "${10 } AM",
-            icon = painterResource(id = android.R.drawable.ic_menu_gallery),
+            iconCode = "01d",
             temperature = "${18 }°",
             isActive = false // Highlights the 3rd item
         )
@@ -177,7 +205,7 @@ fun WeatherPreview() {
 @Composable
 fun DailyForecastItem(
     day: String,
-    icon: Painter,
+    iconCode: String?,
     status: String,
     highTemp: String,
     lowTemp: String,
@@ -208,12 +236,24 @@ fun DailyForecastItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1.2f)
             ) {
-                Icon(
-                    painter = icon,
-                    contentDescription = status,
-                    tint = SkyBlue,
-                    modifier = Modifier.size(24.dp)
-                )
+                if (iconCode != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data("https://openweathermap.org/img/wn/${iconCode}@2x.png")
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = status,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier.size(40.dp)
+                    )
+                } else {
+                    Icon(
+                        painter = painterResource(id = android.R.drawable.ic_menu_gallery),
+                        contentDescription = status,
+                        tint = SkyBlue,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = status,

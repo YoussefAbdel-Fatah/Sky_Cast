@@ -84,7 +84,7 @@ fun DetailsScreen(
                         city = weatherData.city.name,
                         description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
                         highLow = stringResource(id = R.string.max_min_temp, formatNumber(currentWeather.mainWeather.tempMax.toInt()) + tempSymbol, formatNumber(currentWeather.mainWeather.tempMin.toInt()) + tempSymbol),
-                        icon = painterResource(id = android.R.drawable.ic_menu_gallery)
+                        iconCode = currentWeather.weather.firstOrNull()?.icon
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
@@ -108,7 +108,7 @@ fun DetailsScreen(
                         items(hourlyForecast) { forecast ->
                             HourlyForecastItem(
                                 time = formatTime(forecast.dtTxt),
-                                icon = painterResource(id = android.R.drawable.ic_menu_gallery),
+                                iconCode = forecast.weather.firstOrNull()?.icon,
                                 temperature = "${formatNumber(forecast.mainWeather.temp.toInt())}$tempSymbol"
                             )
                         }
@@ -121,7 +121,7 @@ fun DetailsScreen(
                     dailyForecast.forEach { forecast ->
                         DailyForecastItem(
                             day = formatDate(forecast.dtTxt),
-                            icon = painterResource(id = android.R.drawable.ic_menu_gallery),
+                            iconCode = forecast.weather.firstOrNull()?.icon,
                             status = forecast.weather.firstOrNull()?.main ?: stringResource(id = R.string.clear),
                             highTemp = stringResource(id = R.string.max_temp, formatNumber(forecast.mainWeather.tempMax.toInt()) + tempSymbol),
                             lowTemp = stringResource(id = R.string.min_temp, formatNumber(forecast.mainWeather.tempMin.toInt()) + tempSymbol)
