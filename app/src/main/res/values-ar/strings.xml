@@ -17,17 +17,28 @@
     <string name="open_map_to_pick">افتح الخريطة لاختيار الموقع</string>
     
     <string name="temperature_unit">وحدة الحرارة</string>
-    <string name="celsius">مئوية (°C)</string>
-    <string name="fahrenheit">فهرنهايت (°F)</string>
-    <string name="kelvin">كلفن (K)</string>
+    <string name="celsius">مئوية (°م)</string>
+    <string name="fahrenheit">فهرنهايت (°ف)</string>
+    <string name="kelvin">كلفن</string>
     
     <string name="language_title">اللغة</string>
     <string name="english">English</string>
     <string name="arabic">العربية</string>
     
     <string name="wind_speed_unit">وحدة سرعة الرياح</string>
-    <string name="meter_sec">متر/ثانية (m/s)</string>
-    <string name="miles_hour">ميل/ساعة (mph)</string>
+    <string name="meter_sec">متر/ثانية (م/ث)</string>
+    <string name="miles_hour">ميل/ساعة (ميل/س)</string>
+
+    <!-- Symbols -->
+    <string name="unit_celsius_symbol">°م</string>
+    <string name="unit_fahrenheit_symbol">°ف</string>
+    <string name="unit_kelvin_symbol">كلفن</string>
+    <string name="unit_ms_symbol">م/ث</string>
+    <string name="unit_mph_symbol">ميل/س</string>
+    <string name="unit_hpa_symbol">هكتوباسكال</string>
+    <string name="unit_percent">٪</string>
+    <string name="am_symbol">ص</string>
+    <string name="pm_symbol">م</string>
 
     <!-- Home Screen -->
     <string name="internet_connection_lost">فقدت الإتصال بالانترنت</string>

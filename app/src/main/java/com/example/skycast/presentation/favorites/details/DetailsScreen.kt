@@ -39,15 +39,18 @@ fun DetailsScreen(
     }
 
     val tempSymbol = when (uiState.tempUnit) {
-        "imperial" -> "°F"
-        "standard" -> "K"
-        else -> "°C"
+        "imperial" -> stringResource(id = R.string.unit_fahrenheit_symbol)
+        "standard" -> stringResource(id = R.string.unit_kelvin_symbol)
+        else -> stringResource(id = R.string.unit_celsius_symbol)
     }
 
     val windSymbol = when (uiState.windUnit) {
-        "imperial" -> "mph"
-        else -> "m/s"
+        "imperial" -> stringResource(id = R.string.unit_mph_symbol)
+        else -> stringResource(id = R.string.unit_ms_symbol)
     }
+    
+    val hPaSymbol = stringResource(id = R.string.unit_hpa_symbol)
+    val percentSymbol = stringResource(id = R.string.unit_percent)
 
     Scaffold(
         topBar = {
@@ -88,13 +91,13 @@ fun DetailsScreen(
 
                     // 4 Grid Items
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_info_details), stringResource(id = R.string.humidity), "${formatNumber(currentWeather.mainWeather.humidity)}%", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_info_details), stringResource(id = R.string.humidity), "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol", Modifier.weight(1f))
                         WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_send), stringResource(id = R.string.wind_speed), "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol", Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_compass), stringResource(id = R.string.pressure), "${formatNumber(currentWeather.mainWeather.pressure)} hPa", Modifier.weight(1f))
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_gallery), stringResource(id = R.string.clouds), "${formatNumber(currentWeather.clouds.all)}%", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_compass), stringResource(id = R.string.pressure), "${formatNumber(currentWeather.mainWeather.pressure)} $hPaSymbol", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_gallery), stringResource(id = R.string.clouds), "${formatNumber(currentWeather.clouds.all)}$percentSymbol", Modifier.weight(1f))
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))

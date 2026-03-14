@@ -28,6 +28,17 @@
     <string name="wind_speed_unit">Wind Speed Unit</string>
     <string name="meter_sec">Meter/Sec (m/s)</string>
     <string name="miles_hour">Miles/Hour (mph)</string>
+
+    <!-- Symbols -->
+    <string name="unit_celsius_symbol">°C</string>
+    <string name="unit_fahrenheit_symbol">°F</string>
+    <string name="unit_kelvin_symbol">K</string>
+    <string name="unit_ms_symbol">m/s</string>
+    <string name="unit_mph_symbol">mph</string>
+    <string name="unit_hpa_symbol">hPa</string>
+    <string name="unit_percent">%%</string>
+    <string name="am_symbol">AM</string>
+    <string name="pm_symbol">PM</string>
     
     <!-- Home Screen -->
     <string name="internet_connection_lost">Internet connection lost</string>

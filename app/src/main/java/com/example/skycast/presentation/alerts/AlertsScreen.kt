@@ -250,9 +250,10 @@ fun AddAlertDialog(onDismiss: () -> Unit, onSave: (Int, Int, Int, Int, Boolean) 
     )
 }
 
+@Composable
 private fun formatTime(hour: Int, min: Int): String {
-    val amPm = if (hour >= 12) "PM" else "AM"
+    val amPm = if (hour >= 12) stringResource(id = R.string.pm_symbol) else stringResource(id = R.string.am_symbol)
     val formattedHour = if (hour % 12 == 0) 12 else hour % 12
-    val formattedMin = min.toString().padStart(2, '0')
-    return "$formattedHour:$formattedMin $amPm"
+    val formattedMin = String.format(java.util.Locale.getDefault(), "%02d", min)
+    return "${com.example.skycast.utils.DateUtils.formatNumber(formattedHour)}:$formattedMin $amPm"
 }

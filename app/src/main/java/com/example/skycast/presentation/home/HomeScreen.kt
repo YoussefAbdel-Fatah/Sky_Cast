@@ -46,14 +46,16 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val tempSymbol = when (uiState.tempUnit) {
-        "imperial" -> "°F"
-        "standard" -> "K"
-        else -> "°C"
+        "imperial" -> stringResource(id = R.string.unit_fahrenheit_symbol)
+        "standard" -> stringResource(id = R.string.unit_kelvin_symbol)
+        else -> stringResource(id = R.string.unit_celsius_symbol)
     }
     val windSymbol = when (uiState.windUnit) {
-        "imperial" -> "mph"
-        else -> "m/s"
+        "imperial" -> stringResource(id = R.string.unit_mph_symbol)
+        else -> stringResource(id = R.string.unit_ms_symbol)
     }
+    val hPaSymbol = stringResource(id = R.string.unit_hpa_symbol)
+    val percentSymbol = stringResource(id = R.string.unit_percent)
     val scrollState = rememberScrollState()
     val pullToRefreshState = rememberPullToRefreshState()
 
@@ -173,7 +175,7 @@ fun HomeScreen(
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_info_details),
                             label = stringResource(id = R.string.humidity),
-                            value = "${formatNumber(currentWeather.mainWeather.humidity)}%",
+                            value = "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol",
                             modifier = Modifier.weight(1f)
                         )
                         WeatherDetailsCard(
@@ -188,13 +190,13 @@ fun HomeScreen(
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_compass),
                             label = stringResource(id = R.string.pressure),
-                            value = "${formatNumber(currentWeather.mainWeather.pressure)} hPa",
+                            value = "${formatNumber(currentWeather.mainWeather.pressure)} $hPaSymbol",
                             modifier = Modifier.weight(1f)
                         )
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_gallery),
                             label = stringResource(id = R.string.clouds),
-                            value = "${formatNumber(currentWeather.clouds.all)}%",
+                            value = "${formatNumber(currentWeather.clouds.all)}$percentSymbol",
                             modifier = Modifier.weight(1f)
                         )
                     }
