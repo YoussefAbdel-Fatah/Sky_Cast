@@ -122,7 +122,7 @@ fun DetailsScreen(
                         DailyForecastItem(
                             day = formatDate(forecast.dtTxt),
                             iconCode = forecast.weather.firstOrNull()?.icon,
-                            status = forecast.weather.firstOrNull()?.main ?: stringResource(id = R.string.clear),
+                            status = forecast.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
                             highTemp = stringResource(id = R.string.max_temp, formatNumber(forecast.mainWeather.tempMax.toInt()) + tempSymbol),
                             lowTemp = stringResource(id = R.string.min_temp, formatNumber(forecast.mainWeather.tempMin.toInt()) + tempSymbol)
                         )
