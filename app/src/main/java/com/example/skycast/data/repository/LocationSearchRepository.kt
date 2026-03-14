@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.flow
 
 class LocationSearchRepository(private val apiService: NominatimApiService) {
 
-    fun searchLocation(query: String): Flow<List<NominatimResponse>> = flow {
+    fun searchLocation(query: String, language: String = "en"): Flow<List<NominatimResponse>> = flow {
         if (query.isBlank()) {
             emit(emptyList())
             return@flow
         }
 
         try {
-            val response = apiService.searchLocation(query)
+            val response = apiService.searchLocation(query, language = language)
             if (response.isSuccessful) {
                 emit(response.body() ?: emptyList())
             } else {

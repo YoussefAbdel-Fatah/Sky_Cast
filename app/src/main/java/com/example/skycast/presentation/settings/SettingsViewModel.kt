@@ -28,7 +28,12 @@ class SettingsViewModel(
 
     fun updateLocationMethod(method: String) = viewModelScope.launch { repository.saveLocationMethod(method) }
     fun updateTemperatureUnit(unit: String) = viewModelScope.launch { repository.saveTemperatureUnit(unit) }
-    fun updateLanguage(lang: String) = viewModelScope.launch { repository.saveLanguage(lang) }
+    fun updateLanguage(lang: String) = viewModelScope.launch {
+        repository.saveLanguage(lang)
+        // Set the app locale right away natively
+        val appLocale = androidx.core.os.LocaleListCompat.forLanguageTags(lang)
+        androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(appLocale)
+    }
     fun updateWindUnit(unit: String) = viewModelScope.launch { repository.saveWindUnit(unit) }
 }
 

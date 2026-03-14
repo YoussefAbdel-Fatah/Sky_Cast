@@ -7,9 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skycast.R
 import com.example.skycast.presentation.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +28,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings", fontWeight = FontWeight.Bold, color = TextPrimary) },
+                title = { Text(stringResource(id = R.string.settings_title), fontWeight = FontWeight.Bold, color = TextPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
             )
         },
@@ -42,8 +44,8 @@ fun SettingsScreen(
             item {
                 // 1. Location Method
                 SettingsOptionCard(
-                    title = "Location Method",
-                    options = listOf("gps" to "Use GPS", "map" to "Pick from Map"),
+                    title = stringResource(id = R.string.location_method),
+                    options = listOf("gps" to stringResource(id = R.string.use_gps), "map" to stringResource(id = R.string.pick_from_map)),
                     selectedValue = locationMethod,
                     onSelectionChanged = { viewModel.updateLocationMethod(it) }
                 )
@@ -59,18 +61,18 @@ fun SettingsScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = SkyBlue),
                         shape = AppShapes.medium
                     ) {
-                        Text("Open Map to Pick Location", fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(id = R.string.open_map_to_pick), fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }
             item {
                 // 2. Temperature Unit
                 SettingsOptionCard(
-                    title = "Temperature Unit",
+                    title = stringResource(id = R.string.temperature_unit),
                     options = listOf(
-                        "metric" to "Celsius (°C)",
-                        "imperial" to "Fahrenheit (°F)",
-                        "standard" to "Kelvin (K)"
+                        "metric" to stringResource(id = R.string.celsius),
+                        "imperial" to stringResource(id = R.string.fahrenheit),
+                        "standard" to stringResource(id = R.string.kelvin)
                     ),
                     selectedValue = tempUnit,
                     onSelectionChanged = { viewModel.updateTemperatureUnit(it) }
@@ -79,8 +81,8 @@ fun SettingsScreen(
             item {
                 // 3. Language
                 SettingsOptionCard(
-                    title = "Language",
-                    options = listOf("en" to "English", "ar" to "Arabic"),
+                    title = stringResource(id = R.string.language_title),
+                    options = listOf("en" to stringResource(id = R.string.english), "ar" to stringResource(id = R.string.arabic)),
                     selectedValue = language,
                     onSelectionChanged = { viewModel.updateLanguage(it) }
                 )
@@ -89,10 +91,10 @@ fun SettingsScreen(
             item {
                 // 4. Wind Speed Unit
                 SettingsOptionCard(
-                    title = "Wind Speed Unit",
+                    title = stringResource(id = R.string.wind_speed_unit),
                     options = listOf(
-                        "metric" to "Meter/Sec (m/s)",
-                        "imperial" to "Miles/Hour (mph)"
+                        "metric" to stringResource(id = R.string.meter_sec),
+                        "imperial" to stringResource(id = R.string.miles_hour)
                     ),
                     selectedValue = windUnit,
                     onSelectionChanged = { viewModel.updateWindUnit(it) }

@@ -12,10 +12,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.skycast.R
 import com.example.skycast.presentation.components.*
 import com.example.skycast.presentation.theme.*
+import com.example.skycast.utils.DateUtils.formatDate
+import com.example.skycast.utils.DateUtils.formatTime
+import com.example.skycast.utils.DateUtils.formatNumber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,9 +52,9 @@ fun DetailsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(uiState.weatherData?.city?.name ?: "Loading...", fontWeight = FontWeight.Bold) },
+                title = { Text(uiState.weatherData?.city?.name ?: stringResource(id = R.string.loading), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) { Icon(Icons.Default.ArrowBack, contentDescription = "Back") }
+                    IconButton(onClick = onNavigateBack) { Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back)) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
             )
@@ -72,10 +77,10 @@ fun DetailsScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     MainWeatherCard(
-                        temperature = "${currentWeather.mainWeather.temp.toInt()}$tempSymbol",
+                        temperature = "${formatNumber(currentWeather.mainWeather.temp.toInt())}$tempSymbol",
                         city = weatherData.city.name,
-                        description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "Clear",
-                        highLow = "H: ${currentWeather.mainWeather.tempMax.toInt()}$tempSymbol  L: ${currentWeather.mainWeather.tempMin.toInt()}$tempSymbol",
+                        description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
+                        highLow = stringResource(id = R.string.max_min_temp, formatNumber(currentWeather.mainWeather.tempMax.toInt()) + tempSymbol, formatNumber(currentWeather.mainWeather.tempMin.toInt()) + tempSymbol),
                         icon = painterResource(id = android.R.drawable.ic_menu_gallery)
                     )
 
@@ -83,40 +88,40 @@ fun DetailsScreen(
 
                     // 4 Grid Items
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_info_details), "Humidity", "${currentWeather.mainWeather.humidity}%", Modifier.weight(1f))
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_send), "Wind Speed", "${currentWeather.wind.speed} $windSymbol", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_info_details), stringResource(id = R.string.humidity), "${formatNumber(currentWeather.mainWeather.humidity)}%", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_send), stringResource(id = R.string.wind_speed), "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol", Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_compass), "Pressure", "${currentWeather.mainWeather.pressure} hPa", Modifier.weight(1f))
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_gallery), "Clouds", "${currentWeather.clouds.all}%", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_compass), stringResource(id = R.string.pressure), "${formatNumber(currentWeather.mainWeather.pressure)} hPa", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_gallery), stringResource(id = R.string.clouds), "${formatNumber(currentWeather.clouds.all)}%", Modifier.weight(1f))
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    SectionHeader(title = "Hourly Forecast")
+                    SectionHeader(title = stringResource(id = R.string.hourly_forecast))
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(hourlyForecast) { forecast ->
                             HourlyForecastItem(
-                                time = forecast.dtTxt.substring(11, 16), // Simplified time extraction for brevity
+                                time = formatTime(forecast.dtTxt),
                                 icon = painterResource(id = android.R.drawable.ic_menu_gallery),
-                                temperature = "${forecast.mainWeather.temp.toInt()}$tempSymbol"
+                                temperature = "${formatNumber(forecast.mainWeather.temp.toInt())}$tempSymbol"
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    SectionHeader(title = "5-Day Forecast")
+                    SectionHeader(title = stringResource(id = R.string.five_day_forecast))
                     Spacer(modifier = Modifier.height(16.dp))
                     dailyForecast.forEach { forecast ->
                         DailyForecastItem(
-                            day = forecast.dtTxt.substring(0, 10), // Simplified date extraction
+                            day = formatDate(forecast.dtTxt),
                             icon = painterResource(id = android.R.drawable.ic_menu_gallery),
-                            status = forecast.weather.firstOrNull()?.main ?: "Clear",
-                            highTemp = "${forecast.mainWeather.tempMax.toInt()}$tempSymbol",
-                            lowTemp = "${forecast.mainWeather.tempMin.toInt()}$tempSymbol"
+                            status = forecast.weather.firstOrNull()?.main ?: stringResource(id = R.string.clear),
+                            highTemp = stringResource(id = R.string.max_temp, formatNumber(forecast.mainWeather.tempMax.toInt()) + tempSymbol),
+                            lowTemp = stringResource(id = R.string.min_temp, formatNumber(forecast.mainWeather.tempMin.toInt()) + tempSymbol)
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }

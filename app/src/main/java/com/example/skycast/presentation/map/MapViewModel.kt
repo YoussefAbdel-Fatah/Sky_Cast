@@ -48,7 +48,8 @@ class MapViewModel(
         searchJob = viewModelScope.launch {
             delay(500) // Debounce: wait 500ms after they stop typing before searching
             _isSearching.value = true
-            searchRepository.searchLocation(query).collect { results ->
+            val lang = settingsRepository.getLanguage().first()
+            searchRepository.searchLocation(query, lang).collect { results ->
                 _searchResults.value = results
                 _isSearching.value = false
             }

@@ -17,9 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skycast.R
 import com.example.skycast.data.local.entity.FavoriteEntity
 import com.example.skycast.presentation.theme.AppShapes
 import com.example.skycast.presentation.theme.BackgroundLight
@@ -42,8 +44,8 @@ fun FavoritesScreen(
     if (itemToDelete != null) {
         AlertDialog(
             onDismissRequest = { itemToDelete = null },
-            title = { Text("Remove Favorite") },
-            text = { Text("Are you sure you want to remove ${itemToDelete?.cityName} from your favorites?") },
+            title = { Text(stringResource(id = R.string.remove_favorite_title)) },
+            text = { Text(stringResource(id = R.string.remove_favorite_message, itemToDelete?.cityName ?: "")) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -52,14 +54,14 @@ fun FavoritesScreen(
                     }
                 ) {
                     Text(
-                        "Yes",
+                        stringResource(id = R.string.yes),
                         color = MaterialTheme.colorScheme.error
                     ) // Red color for delete action
                 }
             },
             dismissButton = {
                 TextButton(onClick = { itemToDelete = null }) {
-                    Text("No", color = SkyBlue)
+                    Text(stringResource(id = R.string.no), color = SkyBlue)
                 }
             }
         )
@@ -68,7 +70,7 @@ fun FavoritesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorite Locations", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(id = R.string.favorite_locations), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
             )
         },
@@ -80,7 +82,7 @@ fun FavoritesScreen(
                     } else {
                         Toast.makeText(
                             context,
-                            "An internet connection is required to load the map",
+                            context.getString(R.string.internet_required_map),
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -89,7 +91,7 @@ fun FavoritesScreen(
             ) {
                 Icon(
                     Icons.Default.Add,
-                    contentDescription = "Add Favorite",
+                    contentDescription = stringResource(id = R.string.add_favorite),
                     tint = androidx.compose.ui.graphics.Color.White
                 )
             }
@@ -104,7 +106,7 @@ fun FavoritesScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "No favorites added yet.",
+                    stringResource(id = R.string.no_favorites_added),
                     fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -126,7 +128,7 @@ fun FavoritesScreen(
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "An internet connection is required to load the details",
+                                    context.getString(R.string.internet_required_details),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
@@ -167,7 +169,7 @@ fun FavoriteItemCard(
             IconButton(onClick = onDelete) {
                 Icon(
                     Icons.Default.Delete,
-                    contentDescription = "Remove Favorite",
+                    contentDescription = stringResource(id = R.string.remove_favorite_title),
                     tint = MaterialTheme.colorScheme.error
                 )
             }

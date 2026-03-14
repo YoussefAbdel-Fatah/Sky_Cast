@@ -15,9 +15,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.skycast.R
 import com.example.skycast.presentation.theme.BackgroundLight
 import com.example.skycast.presentation.theme.SkyBlue
 import org.osmdroid.config.Configuration
@@ -52,12 +54,12 @@ fun MapScreen(
     if (showNameDialog) {
         AlertDialog(
             onDismissRequest = { showNameDialog = false },
-            title = { Text("Name this location") },
+            title = { Text(stringResource(id = R.string.name_this_location)) },
             text = {
                 OutlinedTextField(
                     value = favoriteCityName,
                     onValueChange = { favoriteCityName = it },
-                    placeholder = { Text("e.g. Grandma's House, Tokyo...") },
+                    placeholder = { Text(stringResource(id = R.string.name_this_location_hint)) },
                     singleLine = true
                 )
             },
@@ -70,11 +72,11 @@ fun MapScreen(
                         }
                     }
                 }) {
-                    Text("Save", color = SkyBlue)
+                    Text(stringResource(id = R.string.save), color = SkyBlue)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showNameDialog = false }) { Text("Cancel") }
+                TextButton(onClick = { showNameDialog = false }) { Text(stringResource(id = R.string.cancel)) }
             }
         )
     }
@@ -82,10 +84,10 @@ fun MapScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Pick Location", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(id = R.string.pick_location), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(id = R.string.back))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
@@ -104,7 +106,7 @@ fun MapScreen(
                     },
                     containerColor = SkyBlue
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = "Save", tint = androidx.compose.ui.graphics.Color.White)
+                    Icon(Icons.Default.Check, contentDescription = stringResource(id = R.string.save), tint = androidx.compose.ui.graphics.Color.White)
                 }
             }
         }
@@ -155,14 +157,14 @@ fun MapScreen(
                         viewModel.onSearchQueryChanged(it)
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("Search city...") },
-                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                    placeholder = { Text(stringResource(id = R.string.search_city)) },
+                    leadingIcon = { Icon(Icons.Default.Search, contentDescription = stringResource(id = R.string.search)) },
                     trailingIcon = {
                         if (searchQuery.isNotEmpty()) {
                             IconButton(onClick = {
                                 searchQuery = ""
                                 viewModel.clearSearchResults()
-                            }) { Icon(Icons.Default.Clear, contentDescription = "Clear") }
+                            }) { Icon(Icons.Default.Clear, contentDescription = stringResource(id = R.string.clear_search)) }
                         }
                     },
                     colors = TextFieldDefaults.colors(

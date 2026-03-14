@@ -22,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.compose.ui.res.stringResource
+import com.example.skycast.R
 import com.example.skycast.data.local.entity.AlertEntity
 import com.example.skycast.presentation.theme.*
 import java.util.*
@@ -43,7 +45,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
         if (isGranted) {
             showAddDialog = true
         } else {
-            Toast.makeText(context, "Notification permission is required to create alerts.", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.notification_permission_required), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -51,18 +53,18 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
     if (itemToDelete != null) {
         AlertDialog(
             onDismissRequest = { itemToDelete = null },
-            title = { Text("Delete Alert") },
-            text = { Text("Are you sure you want to remove this weather alert?") },
+            title = { Text(stringResource(id = R.string.delete_alert)) },
+            text = { Text(stringResource(id = R.string.delete_alert_message)) },
             confirmButton = {
                 TextButton(onClick = {
                     viewModel.deleteAlert(itemToDelete!!)
                     itemToDelete = null
                 }) {
-                    Text("Yes", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(id = R.string.yes), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { itemToDelete = null }) { Text("No", color = SkyBlue) }
+                TextButton(onClick = { itemToDelete = null }) { Text(stringResource(id = R.string.no), color = SkyBlue) }
             }
         )
     }
@@ -70,7 +72,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Weather Alerts", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(id = R.string.weather_alerts), fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
             )
         },
@@ -91,7 +93,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
                 },
                 containerColor = SkyBlue
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Alert", tint = androidx.compose.ui.graphics.Color.White)
+                Icon(Icons.Default.Add, contentDescription = stringResource(id = R.string.add_alert), tint = androidx.compose.ui.graphics.Color.White)
             }
         },
         containerColor = BackgroundLight
@@ -99,7 +101,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
 
         if (alerts.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                Text("No active alerts.", color = TextSecondary)
+                Text(stringResource(id = R.string.no_active_alerts), color = TextSecondary)
             }
         } else {
             LazyColumn(
@@ -148,7 +150,7 @@ fun AlertItemCard(alert: AlertEntity, onToggle: (Boolean) -> Unit, onDelete: () 
                     fontWeight = FontWeight.Bold, fontSize = 18.sp, color = TextPrimary
                 )
                 Text(
-                    text = if (alert.isAlarm) "Alarm Sound" else "Notification Only",
+                    text = if (alert.isAlarm) stringResource(id = R.string.alarm_sound) else stringResource(id = R.string.notification_only),
                     color = TextSecondary, fontSize = 14.sp
                 )
             }
@@ -159,7 +161,7 @@ fun AlertItemCard(alert: AlertEntity, onToggle: (Boolean) -> Unit, onDelete: () 
                     colors = SwitchDefaults.colors(checkedThumbColor = SkyBlue, checkedTrackColor = SkyBlueLight)
                 )
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete), tint = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -194,25 +196,25 @@ fun AddAlertDialog(onDismiss: () -> Unit, onSave: (Int, Int, Int, Int, Boolean) 
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Set Alert Duration") },
+        title = { Text(stringResource(id = R.string.set_alert_duration)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("From:")
+                    Text(stringResource(id = R.string.from_time))
                     TextButton(onClick = { pickTime(true) }) { Text(formatTime(startHour, startMin), color = SkyBlue, fontWeight = FontWeight.Bold) }
                 }
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("To:")
+                    Text(stringResource(id = R.string.to_time))
                     TextButton(onClick = { pickTime(false) }) { Text(formatTime(endHour, endMin), color = SkyBlue, fontWeight = FontWeight.Bold) }
                 }
                 HorizontalDivider()
-                Text("Alert Type", fontWeight = FontWeight.Medium)
+                Text(stringResource(id = R.string.alert_type), fontWeight = FontWeight.Medium)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     RadioButton(selected = !isAlarm, onClick = { isAlarm = false })
-                    Text("Notification")
+                    Text(stringResource(id = R.string.notification))
                     Spacer(modifier = Modifier.width(16.dp))
                     RadioButton(selected = isAlarm, onClick = { isAlarm = true })
-                    Text("Alarm Sound")
+                    Text(stringResource(id = R.string.alarm_sound))
                 }
             }
         },
@@ -228,22 +230,22 @@ fun AddAlertDialog(onDismiss: () -> Unit, onSave: (Int, Int, Int, Int, Boolean) 
                 val endTotalMinutes = endHour * 60 + endMin
 
                 if (startTotalMinutes <= currentTotalMinutes || endTotalMinutes <= currentTotalMinutes) {
-                    Toast.makeText(context, "The duration must be in the future!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.duration_future_error), Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
 
                 if (startTotalMinutes >= endTotalMinutes) {
-                    Toast.makeText(context, "Start time must be before end time.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.start_time_future_error), Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
 
                 // If endTotalMinutes < startTotalMinutes, it naturally implies it crosses midnight (which is perfectly valid!)
 
                 onSave(startHour, startMin, endHour, endMin, isAlarm)
-            }) { Text("Save", color = SkyBlue) }
+            }) { Text(stringResource(id = R.string.save), color = SkyBlue) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(id = R.string.cancel)) }
         }
     )
 }

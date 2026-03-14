@@ -15,6 +15,7 @@ interface NominatimApiService {
     suspend fun searchLocation(
         @Query("q") query: String,
         @Query("format") format: String = "json",
-        @Query("limit") limit: Int = 5 // We only need the top 5 suggestions
+        @Query("limit") limit: Int = 5, // We only need the top 5 suggestions
+        @retrofit2.http.Header("Accept-Language") language: String = "en"
     ): Response<List<NominatimResponse>>
 }

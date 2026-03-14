@@ -27,13 +27,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.skycast.R
 import com.example.skycast.presentation.components.*
 import com.example.skycast.presentation.theme.*
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.example.skycast.utils.DateUtils.formatDate
+import com.example.skycast.utils.DateUtils.formatDate
+import com.example.skycast.utils.DateUtils.formatTime
+import com.example.skycast.utils.DateUtils.formatNumber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,7 +102,7 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Internet connection lost",
+                        text = stringResource(id = R.string.internet_connection_lost),
                         color = Color.White,
                         fontWeight = FontWeight.Medium,
                         fontSize = 14.sp
@@ -151,10 +155,14 @@ fun HomeScreen(
 
                     // Main Top Card
                     MainWeatherCard(
-                        temperature = "${currentWeather.mainWeather.temp.toInt()}$tempSymbol",
+                        temperature = "${formatNumber(currentWeather.mainWeather.temp.toInt())}$tempSymbol",
                         city = weatherData.city.name,
-                        description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: "Clear",
-                        highLow = "Max: ${currentWeather.mainWeather.tempMax.toInt()}$tempSymbol  Min: ${currentWeather.mainWeather.tempMin.toInt()}$tempSymbol",
+                        description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
+                        highLow = stringResource(
+                            id = R.string.max_min_temp, 
+                            formatNumber(currentWeather.mainWeather.tempMax.toInt()) + tempSymbol, 
+                            formatNumber(currentWeather.mainWeather.tempMin.toInt()) + tempSymbol
+                        ),
                         icon = painterResource(id = android.R.drawable.ic_menu_gallery)
                     )
 
@@ -164,14 +172,14 @@ fun HomeScreen(
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_info_details),
-                            label = "Humidity",
-                            value = "${currentWeather.mainWeather.humidity}%",
+                            label = stringResource(id = R.string.humidity),
+                            value = "${formatNumber(currentWeather.mainWeather.humidity)}%",
                             modifier = Modifier.weight(1f)
                         )
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_send),
-                            label = "Wind Speed",
-                            value = "${currentWeather.wind.speed} $windSymbol",
+                            label = stringResource(id = R.string.wind_speed),
+                            value = "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -179,14 +187,14 @@ fun HomeScreen(
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_compass),
-                            label = "Pressure",
-                            value = "${currentWeather.mainWeather.pressure} hPa",
+                            label = stringResource(id = R.string.pressure),
+                            value = "${formatNumber(currentWeather.mainWeather.pressure)} hPa",
                             modifier = Modifier.weight(1f)
                         )
                         WeatherDetailsCard(
                             icon = painterResource(id = android.R.drawable.ic_menu_gallery),
-                            label = "Clouds",
-                            value = "${currentWeather.clouds.all}%",
+                            label = stringResource(id = R.string.clouds),
+                            value = "${formatNumber(currentWeather.clouds.all)}%",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -194,14 +202,14 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     // Hourly Forecast Section
-                    SectionHeader(title = "Hourly Forecast", actionText = "View all")
+                    SectionHeader(title = stringResource(id = R.string.hourly_forecast), actionText = stringResource(id = R.string.view_all))
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(hourlyForecast) { forecast ->
                             HourlyForecastItem(
                                 time = formatTime(forecast.dtTxt),
                                 icon = painterResource(id = android.R.drawable.ic_menu_gallery),
-                                temperature = "${forecast.mainWeather.temp.toInt()}$tempSymbol",
+                                temperature = "${formatNumber(forecast.mainWeather.temp.toInt())}$tempSymbol",
                                 isActive = hourlyForecast.indexOf(forecast) == 0
                             )
                         }
@@ -210,16 +218,16 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     // 5-Day Forecast Section
-                    SectionHeader(title = "5-Day Forecast")
+                    SectionHeader(title = stringResource(id = R.string.five_day_forecast))
                     Spacer(modifier = Modifier.height(16.dp))
 
                     dailyForecast.forEach { forecast ->
                         DailyForecastItem(
                             day = formatDate(forecast.dtTxt),
                             icon = painterResource(id = android.R.drawable.ic_menu_gallery),
-                            status = forecast.weather.firstOrNull()?.main ?: "Clear",
-                            highTemp = "Max: ${forecast.mainWeather.tempMax.toInt()}$tempSymbol",
-                            lowTemp = "Min: ${forecast.mainWeather.tempMin.toInt()}$tempSymbol"
+                            status = forecast.weather.firstOrNull()?.main ?: stringResource(id = R.string.clear),
+                            highTemp = stringResource(id = R.string.max_temp, formatNumber(forecast.mainWeather.tempMax.toInt()) + tempSymbol),
+                            lowTemp = stringResource(id = R.string.min_temp, formatNumber(forecast.mainWeather.tempMin.toInt()) + tempSymbol)
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }
@@ -230,26 +238,4 @@ fun HomeScreen(
         }
     }
 }
-
-// Small helper functions to format the dates coming from the API
-private fun formatTime(dtTxt: String): String {
-    return try {
-        val parser = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val formatter = SimpleDateFormat("h a", Locale.getDefault())
-        val date = parser.parse(dtTxt)
-        date?.let { formatter.format(it) } ?: dtTxt
-    } catch (e: Exception) {
-        dtTxt.substring(11, 16)
-    }
-}
-
-private fun formatDate(dtTxt: String): String {
-    return try {
-        val parser = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val formatter = SimpleDateFormat("EEEE", Locale.getDefault()) // Returns "Monday", "Tuesday", etc.
-        val date = parser.parse(dtTxt)
-        date?.let { formatter.format(it) } ?: dtTxt.substring(0, 10)
-    } catch (e: Exception) {
-        dtTxt.substring(0, 10)
-    }
-}
+

@@ -3,7 +3,7 @@ package com.example.skycast.presentation.main
 import LocationSearchRepository
 import android.content.Context
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.lifecycleScope
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -43,9 +44,11 @@ import com.example.skycast.presentation.theme.WeatherAppTheme
 import com.example.skycast.utils.NetworkObserver
 import com.example.skycast.utils.dataStore
 import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     // 1. Manually instantiate our dependencies
     private val weatherApiService by lazy { RetrofitWeatherClient.weatherApiService }
@@ -93,6 +96,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Load the saved language language directly on startup to ensure Locale is correct
+        lifecycleScope.launch {
+            val savedLang = settingsRepository.getLanguage().first()
+            val appLocale = androidx.core.os.LocaleListCompat.forLanguageTags(savedLang)
+            androidx.appcompat.app.AppCompatDelegate.setApplicationLocales(appLocale)
+        }
 
         setContent {
             WeatherAppTheme {

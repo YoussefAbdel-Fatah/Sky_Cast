@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -65,10 +66,10 @@ fun MainScreen(
                         icon = {
                             Icon(
                                 imageVector = screen.icon,
-                                contentDescription = screen.title
+                                contentDescription = stringResource(id = screen.titleResId)
                             )
                         },
-                        label = { Text(text = screen.title) },
+                        label = { Text(text = stringResource(screen.titleResId)) },
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = SkyBlue,
