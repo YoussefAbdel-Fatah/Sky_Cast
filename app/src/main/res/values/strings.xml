@@ -43,9 +43,9 @@
     <!-- Home Screen -->
     <string name="internet_connection_lost">Internet connection lost</string>
     <string name="clear">Clear</string>
-    <string name="max_min_temp">Max: %1$s  Min: %2$s</string>
-    <string name="max_temp">Max: %1$s</string>
-    <string name="min_temp">Min: %1$s</string>
+    <string name="max_min_temp">H: %1$s  L: %2$s</string>
+    <string name="max_temp">H: %1$s</string>
+    <string name="min_temp">L: %1$s</string>
     <string name="humidity">Humidity</string>
     <string name="wind_speed">Wind Speed</string>
     <string name="pressure">Pressure</string>

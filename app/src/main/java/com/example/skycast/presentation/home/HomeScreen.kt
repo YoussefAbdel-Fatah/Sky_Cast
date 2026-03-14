@@ -173,13 +173,13 @@ fun HomeScreen(
                     // 4 Grid Items
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         WeatherDetailsCard(
-                            icon = painterResource(id = android.R.drawable.ic_menu_info_details),
+                            icon = painterResource(id = R.drawable.ic_humidity),
                             label = stringResource(id = R.string.humidity),
                             value = "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol",
                             modifier = Modifier.weight(1f)
                         )
                         WeatherDetailsCard(
-                            icon = painterResource(id = android.R.drawable.ic_menu_send),
+                            icon = painterResource(id = R.drawable.ic_wind_speed),
                             label = stringResource(id = R.string.wind_speed),
                             value = "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol",
                             modifier = Modifier.weight(1f)
@@ -188,13 +188,13 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         WeatherDetailsCard(
-                            icon = painterResource(id = android.R.drawable.ic_menu_compass),
+                            icon = painterResource(id = R.drawable.ic_pressure),
                             label = stringResource(id = R.string.pressure),
                             value = "${formatNumber(currentWeather.mainWeather.pressure)} $hPaSymbol",
                             modifier = Modifier.weight(1f)
                         )
                         WeatherDetailsCard(
-                            icon = painterResource(id = android.R.drawable.ic_menu_gallery),
+                            icon = painterResource(id = R.drawable.ic_clouds),
                             label = stringResource(id = R.string.clouds),
                             value = "${formatNumber(currentWeather.clouds.all)}$percentSymbol",
                             modifier = Modifier.weight(1f)

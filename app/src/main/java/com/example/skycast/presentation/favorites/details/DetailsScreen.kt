@@ -91,13 +91,13 @@ fun DetailsScreen(
 
                     // 4 Grid Items
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_info_details), stringResource(id = R.string.humidity), "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol", Modifier.weight(1f))
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_send), stringResource(id = R.string.wind_speed), "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = R.drawable.ic_humidity), stringResource(id = R.string.humidity), "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = R.drawable.ic_wind_speed), stringResource(id = R.string.wind_speed), "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol", Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_compass), stringResource(id = R.string.pressure), "${formatNumber(currentWeather.mainWeather.pressure)} $hPaSymbol", Modifier.weight(1f))
-                        WeatherDetailsCard(painterResource(id = android.R.drawable.ic_menu_gallery), stringResource(id = R.string.clouds), "${formatNumber(currentWeather.clouds.all)}$percentSymbol", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = R.drawable.ic_pressure), stringResource(id = R.string.pressure), "${formatNumber(currentWeather.mainWeather.pressure)} $hPaSymbol", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = R.drawable.ic_clouds), stringResource(id = R.string.clouds), "${formatNumber(currentWeather.clouds.all)}$percentSymbol", Modifier.weight(1f))
                     }
 
                     Spacer(modifier = Modifier.height(32.dp))
