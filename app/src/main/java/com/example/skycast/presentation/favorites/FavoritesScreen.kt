@@ -74,7 +74,17 @@ fun FavoritesScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onNavigateToMap,
+                onClick = {
+                    if (isOnline) {
+                        onNavigateToMap()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "An internet connection is required to load the map",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
                 containerColor = SkyBlue
             ) {
                 Icon(
@@ -116,7 +126,7 @@ fun FavoritesScreen(
                             } else {
                                 Toast.makeText(
                                     context,
-                                    "No internet, no entry!",
+                                    "An internet connection is required to load the details",
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
