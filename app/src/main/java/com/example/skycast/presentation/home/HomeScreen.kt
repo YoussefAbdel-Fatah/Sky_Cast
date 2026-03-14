@@ -204,7 +204,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(32.dp))
 
                     // Hourly Forecast Section
-                    SectionHeader(title = stringResource(id = R.string.hourly_forecast), actionText = stringResource(id = R.string.view_all))
+                    SectionHeader(title = stringResource(id = R.string.hourly_forecast))
                     Spacer(modifier = Modifier.height(16.dp))
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         items(hourlyForecast) { forecast ->
@@ -212,7 +212,6 @@ fun HomeScreen(
                                 time = formatTime(forecast.dtTxt),
                                 iconCode = forecast.weather.firstOrNull()?.icon,
                                 temperature = "${formatNumber(forecast.mainWeather.temp.toInt())}$tempSymbol",
-                                isActive = hourlyForecast.indexOf(forecast) == 0
                             )
                         }
                     }
@@ -240,4 +239,4 @@ fun HomeScreen(
         }
     }
 }
-
+

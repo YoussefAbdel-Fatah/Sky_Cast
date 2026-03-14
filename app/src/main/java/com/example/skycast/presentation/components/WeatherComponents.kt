@@ -129,19 +129,18 @@ fun HourlyForecastItem(
     time: String,
     iconCode: String?,
     temperature: String,
-    isActive: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isActive) SkyBlue else SurfaceWhite
-    val textColor = if (isActive) SurfaceWhite else TextPrimary
-    val timeColor = if (isActive) SurfaceWhite else TextSecondary
-    val iconTint = if (isActive) SurfaceWhite else SkyBlue
+    val backgroundColor = SurfaceWhite
+    val textColor = TextPrimary
+    val timeColor = TextSecondary
+    val iconTint = SkyBlue
 
     Card(
         modifier = modifier.width(72.dp),
         shape = AppShapes.medium,
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isActive) 6.dp else 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier
@@ -196,7 +195,6 @@ fun WeatherPreview() {
             time = "${10 } AM",
             iconCode = "01d",
             temperature = "${18 }°",
-            isActive = false // Highlights the 3rd item
         )
     }
 }
@@ -287,8 +285,6 @@ fun DailyForecastItem(
 @Composable
 fun SectionHeader(
     title: String,
-    actionText: String? = null,
-    onActionClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -300,15 +296,15 @@ fun SectionHeader(
             text = title,
             style = AppTypography.headlineMedium
         )
-        if (actionText != null) {
-            TextButton(onClick = onActionClick) {
-                Text(
-                    text = actionText,
-                    color = SkyBlue,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        }
+//        if (actionText != null) {
+//            TextButton(onClick = onActionClick) {
+//                Text(
+//                    text = actionText,
+//                    color = SkyBlue,
+//                    fontSize = 14.sp,
+//                    fontWeight = FontWeight.Medium
+//                )
+//            }
+//        }
     }
 }
