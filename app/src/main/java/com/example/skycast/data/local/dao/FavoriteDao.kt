@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoriteDao {
-    // Returns a Flow! If the DB changes, the UI updates instantly.
     @Query("SELECT * FROM favorites_table")
     fun getAllFavorites(): Flow<List<FavoriteEntity>>
 
