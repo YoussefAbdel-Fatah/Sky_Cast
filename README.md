@@ -77,7 +77,7 @@ com.example.skycast
 | Language | Kotlin |
 | UI Framework | Jetpack Compose + Material 3 |
 | Architecture | MVVM |
-| Networking | Retrofit 2 + OkHttp + Gson |
+| Networking | Retrofit 2 + Gson |
 | Local Database | Room (with KSP) |
 | Preferences | DataStore Preferences |
 | Async / Reactive | Kotlin Coroutines + Flow / StateFlow / SharedFlow |
