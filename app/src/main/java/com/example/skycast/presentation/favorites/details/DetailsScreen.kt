@@ -48,6 +48,8 @@ fun DetailsScreen(
         "imperial" -> stringResource(id = R.string.unit_mph_symbol)
         else -> stringResource(id = R.string.unit_ms_symbol)
     }
+    // Convert wind speed: API returns m/s, multiply by 2.23694 to get mph
+    val windConversionFactor = if (uiState.windUnit == "imperial") 2.23694 else 1.0
     
     val hPaSymbol = stringResource(id = R.string.unit_hpa_symbol)
     val percentSymbol = stringResource(id = R.string.unit_percent)
@@ -92,7 +94,7 @@ fun DetailsScreen(
                     // 4 Grid Items
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         WeatherDetailsCard(painterResource(id = R.drawable.ic_humidity), stringResource(id = R.string.humidity), "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol", Modifier.weight(1f))
-                        WeatherDetailsCard(painterResource(id = R.drawable.ic_wind_speed), stringResource(id = R.string.wind_speed), "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol", Modifier.weight(1f))
+                        WeatherDetailsCard(painterResource(id = R.drawable.ic_wind_speed), stringResource(id = R.string.wind_speed), "${formatNumber((currentWeather.wind.speed * windConversionFactor).toInt())} $windSymbol", Modifier.weight(1f))
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {

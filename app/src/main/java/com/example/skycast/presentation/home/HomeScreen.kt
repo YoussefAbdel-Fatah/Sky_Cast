@@ -161,6 +161,8 @@ fun HomeScreen(
                     "imperial" -> stringResource(id = R.string.unit_mph_symbol)
                     else -> stringResource(id = R.string.unit_ms_symbol)
                 }
+                // Convert wind speed: API returns m/s, multiply by 2.23694 to get mph
+                val windConversionFactor = if (state.windUnit == "imperial") 2.23694 else 1.0
                 val hPaSymbol = stringResource(id = R.string.unit_hpa_symbol)
                 val percentSymbol = stringResource(id = R.string.unit_percent)
 
@@ -221,7 +223,7 @@ fun HomeScreen(
                             WeatherDetailsCard(
                                 icon = painterResource(id = R.drawable.ic_wind_speed),
                                 label = stringResource(id = R.string.wind_speed),
-                                value = "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol",
+                                value = "${formatNumber((currentWeather.wind.speed * windConversionFactor).toInt())} $windSymbol",
                                 modifier = Modifier.weight(1f)
                             )
                         }
