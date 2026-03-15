@@ -6,6 +6,7 @@ import com.example.skycast.data.remote.response.WeatherResponse
 import com.example.skycast.utils.Constants
 import com.example.skycast.utils.Resource
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
@@ -21,7 +22,7 @@ class WeatherRepositoryImp(
 
         emit(Resource.Loading())
 
-        val cachedWeather = localDataSource.getCachedWeather()
+        val cachedWeather = localDataSource.getCachedWeather().first()
         if (cachedWeather != null) {
             emit(Resource.Success(cachedWeather))
         }
@@ -59,7 +60,7 @@ class WeatherRepositoryImp(
 
         emit(Resource.Loading())
 
-        val cachedWeather = localDataSource.getCachedWeather()
+        val cachedWeather = localDataSource.getCachedWeather().first()
         if (cachedWeather != null) {
             emit(Resource.Success(cachedWeather))
         }

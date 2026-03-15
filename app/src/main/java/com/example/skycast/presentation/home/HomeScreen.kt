@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +36,6 @@ import com.example.skycast.R
 import com.example.skycast.presentation.components.*
 import com.example.skycast.presentation.theme.*
 import com.example.skycast.utils.DateUtils.formatDate
-import com.example.skycast.utils.DateUtils.formatDate
 import com.example.skycast.utils.DateUtils.formatTime
 import com.example.skycast.utils.DateUtils.formatNumber
 
@@ -45,19 +45,11 @@ fun HomeScreen(
     viewModel: HomeViewModel // 1. Pass the ViewModel in
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val tempSymbol = when (uiState.tempUnit) {
-        "imperial" -> stringResource(id = R.string.unit_fahrenheit_symbol)
-        "standard" -> stringResource(id = R.string.unit_kelvin_symbol)
-        else -> stringResource(id = R.string.unit_celsius_symbol)
-    }
-    val windSymbol = when (uiState.windUnit) {
-        "imperial" -> stringResource(id = R.string.unit_mph_symbol)
-        else -> stringResource(id = R.string.unit_ms_symbol)
-    }
-    val hPaSymbol = stringResource(id = R.string.unit_hpa_symbol)
-    val percentSymbol = stringResource(id = R.string.unit_percent)
     val scrollState = rememberScrollState()
     val pullToRefreshState = rememberPullToRefreshState()
+
+    // Gap 3: Snackbar host for SharedFlow events
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // 1. Setup the Permission Launcher
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -78,6 +70,20 @@ fun HomeScreen(
         )
     }
 
+    // Gap 3: Collect one-time SharedFlow events and show Snackbar
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is HomeEvent.ShowError -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+                is HomeEvent.WeatherRefreshed -> {
+                    snackbarHostState.showSnackbar("Weather updated!")
+                }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -90,9 +96,10 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            // 2. The Offline Banner
+            // 2. The Offline Banner (shown when in Success state and offline)
+            val isOffline = (uiState as? HomeUiState.Success)?.isOffline == true
             AnimatedVisibility(
-                visible = uiState.isOffline,
+                visible = isOffline,
                 enter = slideInVertically(initialOffsetY = { it }),
                 exit = slideOutVertically(targetOffsetY = { it })
             ) {
@@ -112,128 +119,162 @@ fun HomeScreen(
                 }
             }
         },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = BackgroundLight
     ) { paddingValues ->
 
-        PullToRefreshBox(
-            isRefreshing = uiState.isRefreshing,
-            onRefresh = { viewModel.refresh() },
-            state = pullToRefreshState,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            indicator = {
-                PullToRefreshDefaults.Indicator(
-                    state = pullToRefreshState,
-                    isRefreshing = uiState.isRefreshing,
-                    color = SkyBlue,
-                    containerColor = BackgroundLight,
-                    modifier = Modifier.align(Alignment.TopCenter)
-                )
+        // Gap 2: Use sealed class with 'when' for UI state management
+        when (val state = uiState) {
+            is HomeUiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = SkyBlue)
+                }
             }
-        ) {
 
-            // Show main loading only if we have NO cached data
-            if (uiState.isLoading && uiState.weatherData == null) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                    color = SkyBlue
-                )
-            } else if (uiState.weatherData != null) {
+            is HomeUiState.Error -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = state.message,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 16.sp
+                    )
+                }
+            }
 
-                val weatherData = uiState.weatherData!!
+            is HomeUiState.Success -> {
+                val tempSymbol = when (state.tempUnit) {
+                    "imperial" -> stringResource(id = R.string.unit_fahrenheit_symbol)
+                    "standard" -> stringResource(id = R.string.unit_kelvin_symbol)
+                    else -> stringResource(id = R.string.unit_celsius_symbol)
+                }
+                val windSymbol = when (state.windUnit) {
+                    "imperial" -> stringResource(id = R.string.unit_mph_symbol)
+                    else -> stringResource(id = R.string.unit_ms_symbol)
+                }
+                val hPaSymbol = stringResource(id = R.string.unit_hpa_symbol)
+                val percentSymbol = stringResource(id = R.string.unit_percent)
+
+                val weatherData = state.weatherData
                 val currentWeather = weatherData.forecastList.first()
                 val hourlyForecast = weatherData.forecastList.take(8)
                 val dailyForecast = weatherData.forecastList.filterIndexed { index, _ -> index % 8 == 0 }.take(5)
 
-                // The scrollable Column
-                Column(
+                PullToRefreshBox(
+                    isRefreshing = state.isRefreshing,
+                    onRefresh = { viewModel.refresh() },
+                    state = pullToRefreshState,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 20.dp)
-                        .verticalScroll(scrollState)
+                        .padding(paddingValues),
+                    indicator = {
+                        PullToRefreshDefaults.Indicator(
+                            state = pullToRefreshState,
+                            isRefreshing = state.isRefreshing,
+                            color = SkyBlue,
+                            containerColor = BackgroundLight,
+                            modifier = Modifier.align(Alignment.TopCenter)
+                        )
+                    }
                 ) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    // The scrollable Column
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 20.dp)
+                            .verticalScroll(scrollState)
+                    ) {
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    // Main Top Card
-                    MainWeatherCard(
-                        temperature = "${formatNumber(currentWeather.mainWeather.temp.toInt())}$tempSymbol",
-                        city = weatherData.city.name,
-                        description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
-                        highLow = stringResource(
-                            id = R.string.max_min_temp, 
-                            formatNumber(currentWeather.mainWeather.tempMax.toInt()) + tempSymbol, 
-                            formatNumber(currentWeather.mainWeather.tempMin.toInt()) + tempSymbol
-                        ),
-                        iconCode = currentWeather.weather.firstOrNull()?.icon
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    // 4 Grid Items
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(
-                            icon = painterResource(id = R.drawable.ic_humidity),
-                            label = stringResource(id = R.string.humidity),
-                            value = "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol",
-                            modifier = Modifier.weight(1f)
+                        // Main Top Card
+                        MainWeatherCard(
+                            temperature = "${formatNumber(currentWeather.mainWeather.temp.toInt())}$tempSymbol",
+                            city = weatherData.city.name,
+                            description = currentWeather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
+                            highLow = stringResource(
+                                id = R.string.max_min_temp,
+                                formatNumber(currentWeather.mainWeather.tempMax.toInt()) + tempSymbol,
+                                formatNumber(currentWeather.mainWeather.tempMin.toInt()) + tempSymbol
+                            ),
+                            iconCode = currentWeather.weather.firstOrNull()?.icon
                         )
-                        WeatherDetailsCard(
-                            icon = painterResource(id = R.drawable.ic_wind_speed),
-                            label = stringResource(id = R.string.wind_speed),
-                            value = "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        WeatherDetailsCard(
-                            icon = painterResource(id = R.drawable.ic_pressure),
-                            label = stringResource(id = R.string.pressure),
-                            value = "${formatNumber(currentWeather.mainWeather.pressure)} $hPaSymbol",
-                            modifier = Modifier.weight(1f)
-                        )
-                        WeatherDetailsCard(
-                            icon = painterResource(id = R.drawable.ic_clouds),
-                            label = stringResource(id = R.string.clouds),
-                            value = "${formatNumber(currentWeather.clouds.all)}$percentSymbol",
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                    // Hourly Forecast Section
-                    SectionHeader(title = stringResource(id = R.string.hourly_forecast))
-                    Spacer(modifier = Modifier.height(16.dp))
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        items(hourlyForecast) { forecast ->
-                            HourlyForecastItem(
-                                time = formatTime(forecast.dtTxt),
-                                iconCode = forecast.weather.firstOrNull()?.icon,
-                                temperature = "${formatNumber(forecast.mainWeather.temp.toInt())}$tempSymbol",
+                        // 4 Grid Items
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            WeatherDetailsCard(
+                                icon = painterResource(id = R.drawable.ic_humidity),
+                                label = stringResource(id = R.string.humidity),
+                                value = "${formatNumber(currentWeather.mainWeather.humidity)}$percentSymbol",
+                                modifier = Modifier.weight(1f)
+                            )
+                            WeatherDetailsCard(
+                                icon = painterResource(id = R.drawable.ic_wind_speed),
+                                label = stringResource(id = R.string.wind_speed),
+                                value = "${formatNumber(currentWeather.wind.speed.toInt())} $windSymbol",
+                                modifier = Modifier.weight(1f)
                             )
                         }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            WeatherDetailsCard(
+                                icon = painterResource(id = R.drawable.ic_pressure),
+                                label = stringResource(id = R.string.pressure),
+                                value = "${formatNumber(currentWeather.mainWeather.pressure)} $hPaSymbol",
+                                modifier = Modifier.weight(1f)
+                            )
+                            WeatherDetailsCard(
+                                icon = painterResource(id = R.drawable.ic_clouds),
+                                label = stringResource(id = R.string.clouds),
+                                value = "${formatNumber(currentWeather.clouds.all)}$percentSymbol",
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        // Hourly Forecast Section
+                        SectionHeader(title = stringResource(id = R.string.hourly_forecast))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            items(hourlyForecast) { forecast ->
+                                HourlyForecastItem(
+                                    time = formatTime(forecast.dtTxt),
+                                    iconCode = forecast.weather.firstOrNull()?.icon,
+                                    temperature = "${formatNumber(forecast.mainWeather.temp.toInt())}$tempSymbol",
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        // 5-Day Forecast Section
+                        SectionHeader(title = stringResource(id = R.string.five_day_forecast))
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        dailyForecast.forEach { forecast ->
+                            DailyForecastItem(
+                                day = formatDate(forecast.dtTxt),
+                                iconCode = forecast.weather.firstOrNull()?.icon,
+                                status = forecast.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
+                                highTemp = stringResource(id = R.string.max_temp, formatNumber(forecast.mainWeather.tempMax.toInt()) + tempSymbol),
+                                lowTemp = stringResource(id = R.string.min_temp, formatNumber(forecast.mainWeather.tempMin.toInt()) + tempSymbol)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
                     }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    // 5-Day Forecast Section
-                    SectionHeader(title = stringResource(id = R.string.five_day_forecast))
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    dailyForecast.forEach { forecast ->
-                        DailyForecastItem(
-                            day = formatDate(forecast.dtTxt),
-                            iconCode = forecast.weather.firstOrNull()?.icon,
-                            status = forecast.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: stringResource(id = R.string.clear),
-                            highTemp = stringResource(id = R.string.max_temp, formatNumber(forecast.mainWeather.tempMax.toInt()) + tempSymbol),
-                            lowTemp = stringResource(id = R.string.min_temp, formatNumber(forecast.mainWeather.tempMin.toInt()) + tempSymbol)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
                 }
             }
         }

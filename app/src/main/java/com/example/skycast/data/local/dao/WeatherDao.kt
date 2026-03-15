@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.skycast.data.local.entity.WeatherEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeatherDao {
@@ -13,5 +14,5 @@ interface WeatherDao {
     suspend fun insertWeather(weatherEntity: WeatherEntity)
 
     @Query("SELECT * FROM weather_cache WHERE id = 1")
-    suspend fun getCachedWeather(): WeatherEntity?
+    fun getCachedWeather(): Flow<WeatherEntity?>
 }

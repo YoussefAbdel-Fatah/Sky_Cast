@@ -8,8 +8,11 @@ import com.example.skycast.data.repository.WeatherRepository
 import com.example.skycast.data.repository.SettingsRepository
 import com.example.skycast.utils.NetworkObserver
 import com.example.skycast.utils.Resource
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
@@ -25,8 +28,13 @@ class HomeViewModel(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    // Gap 2: Sealed class UI state
+    private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    // Gap 3: SharedFlow for one-time events (Snackbar, Toasts, etc.)
+    private val _events = MutableSharedFlow<HomeEvent>()
+    val events: SharedFlow<HomeEvent> = _events.asSharedFlow()
 
     // Remember the last searched location to refresh it later
     private var lastSearchedCity: String? = null
@@ -34,6 +42,8 @@ class HomeViewModel(
     private var lastLon: Double? = null
     private var currentLocationMethod = "gps"
     private var currentLang = "en"
+    private var currentTempUnit = "metric"
+    private var currentWindUnit = "metric"
 
 
 
@@ -52,16 +62,21 @@ class HomeViewModel(
                 settingsRepository.getLanguage()
             ) { loc, temp, wind, lang ->
 
-                val settingsChanged = _uiState.value.tempUnit != temp || currentLang != lang || currentLocationMethod != loc
+                val settingsChanged = currentTempUnit != temp || currentLang != lang || currentLocationMethod != loc
 
                 currentLocationMethod = loc
                 currentLang = lang
+                currentTempUnit = temp
+                currentWindUnit = wind
 
-                // Update the state with the new units
-                _uiState.value = _uiState.value.copy(tempUnit = temp, windUnit = wind)
+                // Update the state with the new units (only if we already have data)
+                val current = _uiState.value
+                if (current is HomeUiState.Success) {
+                    _uiState.value = current.copy(tempUnit = temp, windUnit = wind)
+                }
 
                 // If settings actually changed (or if it's the very first time loading), fetch new data
-                if (_uiState.value.weatherData == null || settingsChanged) {
+                if (current is HomeUiState.Loading || settingsChanged) {
                     loadWeatherInfo()
                 }
             }.collect()
@@ -69,8 +84,12 @@ class HomeViewModel(
     }
     private fun observeNetwork() {
         networkObserver.observe().onEach { isOnline ->
-            val wasOffline = _uiState.value.isOffline
-            _uiState.value = _uiState.value.copy(isOffline = !isOnline)
+            val current = _uiState.value
+            val wasOffline = current is HomeUiState.Success && current.isOffline
+
+            if (current is HomeUiState.Success) {
+                _uiState.value = current.copy(isOffline = !isOnline)
+            }
 
             // If the connection just came back, refresh the data automatically!
             if (isOnline && wasOffline) {
@@ -80,24 +99,27 @@ class HomeViewModel(
     }
 
     fun refresh() {
-        _uiState.value = _uiState.value.copy(isRefreshing = true)
+        val current = _uiState.value
+        if (current is HomeUiState.Success) {
+            _uiState.value = current.copy(isRefreshing = true)
+        }
         if (lastLat != null && lastLon != null) {
-            getWeatherByLocation(lastLat!!, lastLon!!, _uiState.value.tempUnit, currentLang)
+            getWeatherByLocation(lastLat!!, lastLon!!, currentTempUnit, currentLang)
         } else {
-            getWeatherByCity(lastSearchedCity ?: "London", _uiState.value.tempUnit, currentLang)
+            getWeatherByCity(lastSearchedCity ?: "London", currentTempUnit, currentLang)
         }
     }
 
     fun loadWeatherInfo() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+            _uiState.value = HomeUiState.Loading
 
             if (currentLocationMethod == "gps") {
                 val location = locationTracker.getCurrentLocation()
                 if (location != null) {
-                    getWeatherByLocation(location.latitude, location.longitude, _uiState.value.tempUnit, currentLang)
+                    getWeatherByLocation(location.latitude, location.longitude, currentTempUnit, currentLang)
                 } else {
-                    getWeatherByCity("London", _uiState.value.tempUnit, currentLang) // Fallback
+                    getWeatherByCity("London", currentTempUnit, currentLang) // Fallback
                 }
             } else {
                 val mapLocation = settingsRepository.getMapLocation().first()
@@ -105,11 +127,11 @@ class HomeViewModel(
                 if (mapLocation != null) {
                     // We found a saved map location! Fetch weather for it.
                     val (lat, lon) = mapLocation
-                    getWeatherByLocation(lat, lon, _uiState.value.tempUnit, currentLang)
+                    getWeatherByLocation(lat, lon, currentTempUnit, currentLang)
                 } else {
                     // The user set the method to "Map" but hasn't actually picked a location on the map yet.
                     // We can fallback to a default city until they pick one.
-                    getWeatherByCity("London", _uiState.value.tempUnit, currentLang)
+                    getWeatherByCity("London", currentTempUnit, currentLang)
                 }
             }
         }
@@ -138,29 +160,38 @@ class HomeViewModel(
         }
     }
 
-    private fun handleResult(result: Resource<WeatherResponse>) {
+    private suspend fun handleResult(result: Resource<WeatherResponse>) {
         when (result) {
             is Resource.Loading -> {
                 // Only show main loading if we don't have data yet
-                if (_uiState.value.weatherData == null) {
-                    _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+                if (_uiState.value !is HomeUiState.Success) {
+                    _uiState.value = HomeUiState.Loading
                 }
             }
             is Resource.Success -> {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
+                val wasRefreshing = (_uiState.value as? HomeUiState.Success)?.isRefreshing == true
+                _uiState.value = HomeUiState.Success(
+                    weatherData = result.data!!,
+                    tempUnit = currentTempUnit,
+                    windUnit = currentWindUnit,
                     isRefreshing = false,
-                    weatherData = result.data,
-                    error = null
+                    isOffline = (_uiState.value as? HomeUiState.Success)?.isOffline ?: false
                 )
+                // Emit a one-time event when a pull-to-refresh completes
+                if (wasRefreshing) {
+                    _events.emit(HomeEvent.WeatherRefreshed)
+                }
             }
             is Resource.Error -> {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    isRefreshing = false,
-                    // Don't show an error string if we are just offline and already have cached data
-                    error = if (_uiState.value.weatherData == null) result.message else null
-                )
+                val current = _uiState.value
+                if (current is HomeUiState.Success) {
+                    // We already have cached data on screen — don't replace it with an error.
+                    // Instead, emit a one-time event so the UI can show a Snackbar.
+                    _uiState.value = current.copy(isRefreshing = false)
+                    _events.emit(HomeEvent.ShowError(result.message ?: "Something went wrong"))
+                } else {
+                    _uiState.value = HomeUiState.Error(result.message ?: "Something went wrong")
+                }
             }
         }
     }

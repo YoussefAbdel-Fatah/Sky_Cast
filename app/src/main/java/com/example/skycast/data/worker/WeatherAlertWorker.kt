@@ -58,7 +58,7 @@ class WeatherAlertWorker(
 
         // 4. Time is valid! Fetch weather to see if we need to warn the user
         try {
-            val cachedWeather = weatherDao.getCachedWeather()
+            val cachedWeather = weatherDao.getCachedWeather().first()
 
             // If the user has never loaded the weather, we can't check alerts
             if (cachedWeather == null) return Result.success()
