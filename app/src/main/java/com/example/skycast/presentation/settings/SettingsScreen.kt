@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,7 +62,7 @@ fun SettingsScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = SkyBlue),
                         shape = AppShapes.medium
                     ) {
-                        Text(stringResource(id = R.string.open_map_to_pick), fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                        Text(stringResource(id = R.string.open_map_to_pick), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                     }
                 }
             }

@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,7 +59,7 @@ fun LocationPermissionDenied(onGrantClicked: () -> Unit) {
             modifier = Modifier.fillMaxWidth().height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = SkyBlue)
         ) {
-            Text(stringResource(id = R.string.grant_permission), fontSize = 16.sp)
+            Text(stringResource(id = R.string.grant_permission), color = Color.White, fontSize = 16.sp)
         }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(

@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,7 +56,7 @@ fun OfflineEmptyState(onRetry: () -> Unit) {
             modifier = Modifier.fillMaxWidth().height(50.dp),
             colors = ButtonDefaults.buttonColors(containerColor = SkyBlue)
         ) {
-            Text("Retry Connection", fontSize = 16.sp)
+            Text("Retry Connection", color = Color.White, fontSize = 16.sp)
         }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(
