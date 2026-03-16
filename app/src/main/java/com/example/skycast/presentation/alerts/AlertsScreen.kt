@@ -17,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(id = R.string.weather_alerts), fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(id = R.string.weather_alerts), fontWeight = FontWeight.Bold, color = TextPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
             )
         },
@@ -108,6 +109,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
                 modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item { Spacer(modifier = Modifier.height(8.dp)) }
                 items(alerts) { alert ->
                     AlertItemCard(
                         alert = alert,
@@ -115,6 +117,7 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
                         onDelete = { itemToDelete = alert } // Trigger dialog instead of immediate deletion
                     )
                 }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
         }
 
@@ -135,9 +138,11 @@ fun AlertsScreen(viewModel: AlertsViewModel) {
 fun AlertItemCard(alert: AlertEntity, onToggle: (Boolean) -> Unit, onDelete: () -> Unit) {
     Card(
         shape = AppShapes.medium,
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+        colors = CardDefaults.cardColors(containerColor = BackgroundLight),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(elevation = 16.dp, spotColor = SkyBlue, ambientColor = SkyBlue, shape = AppShapes.medium)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),

@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -177,8 +178,12 @@ fun MapScreen(
                 // 3. Search Results Dropdown
                 AnimatedVisibility(visible = searchResults.isNotEmpty()) {
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 4.dp)
+                            .shadow(elevation = 16.dp, spotColor = SkyBlue, ambientColor = SkyBlue, shape = CardDefaults.shape),
+                        colors = CardDefaults.cardColors(containerColor = BackgroundLight),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
                     ) {
                         LazyColumn(modifier = Modifier.heightIn(max = 200.dp)) {
                             items(searchResults) { result ->

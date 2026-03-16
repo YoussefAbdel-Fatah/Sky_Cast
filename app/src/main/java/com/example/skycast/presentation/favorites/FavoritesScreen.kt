@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +28,7 @@ import com.example.skycast.presentation.theme.AppShapes
 import com.example.skycast.presentation.theme.BackgroundLight
 import com.example.skycast.presentation.theme.SkyBlue
 import com.example.skycast.presentation.theme.SurfaceWhite
+import com.example.skycast.presentation.theme.TextPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +72,7 @@ fun FavoritesScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(id = R.string.favorite_locations), fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(id = R.string.favorite_locations), fontWeight = FontWeight.Bold, color = TextPrimary) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = BackgroundLight)
             )
         },
@@ -119,6 +121,7 @@ fun FavoritesScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item { Spacer(modifier = Modifier.height(16.dp)) }
                 items(favorites) { favorite ->
                     FavoriteItemCard(
                         favorite = favorite,
@@ -136,6 +139,7 @@ fun FavoritesScreen(
                         onDelete = { itemToDelete = favorite }
                     )
                 }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
         }
     }
@@ -150,9 +154,11 @@ fun FavoriteItemCard(
     Card(
         onClick = onClick,
         shape = AppShapes.medium,
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+        colors = CardDefaults.cardColors(containerColor = BackgroundLight),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(elevation = 16.dp, spotColor = SkyBlue, ambientColor = SkyBlue, shape = AppShapes.medium)
     ) {
         Row(
             modifier = Modifier
@@ -164,7 +170,8 @@ fun FavoriteItemCard(
             Text(
                 text = favorite.cityName,
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = TextPrimary
             )
             IconButton(onClick = onDelete) {
                 Icon(

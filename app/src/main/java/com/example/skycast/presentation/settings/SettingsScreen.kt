@@ -2,11 +2,13 @@ package com.example.skycast.presentation.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -40,8 +42,9 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item { Spacer(modifier = Modifier.height(8.dp)) }
             item {
                 // 1. Location Method
                 SettingsOptionCard(
@@ -101,6 +104,7 @@ fun SettingsScreen(
                     onSelectionChanged = { viewModel.updateWindUnit(it) }
                 )
             }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
         }
     }
 }
@@ -115,9 +119,11 @@ fun SettingsOptionCard(
 ) {
     Card(
         shape = AppShapes.medium,
-        colors = CardDefaults.cardColors(containerColor = SurfaceWhite),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+        colors = CardDefaults.cardColors(containerColor = BackgroundLight),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .shadow(elevation = 16.dp, spotColor = SkyBlue, ambientColor = SkyBlue, shape = AppShapes.medium)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(text = title, style = AppTypography.headlineMedium, fontSize = 18.sp, color = TextPrimary)
