@@ -28,11 +28,11 @@ class HomeViewModel(
     private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
-    // Gap 2: Sealed class UI state
+    // Sealed class UI state
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    // Gap 3: SharedFlow for one-time events (Snackbar, Toasts, etc.)
+    // SharedFlow for one-time events (Snackbar, Toasts, etc.)
     private val _events = MutableSharedFlow<HomeEvent>()
     val events: SharedFlow<HomeEvent> = _events.asSharedFlow()
 
@@ -115,6 +115,11 @@ class HomeViewModel(
             _uiState.value = HomeUiState.Loading
 
             if (currentLocationMethod == "gps") {
+                // Check if location permission is granted before requesting location
+                if (!locationTracker.hasLocationPermission()) {
+                    _uiState.value = HomeUiState.PermissionDenied
+                    return@launch
+                }
                 val location = locationTracker.getCurrentLocation()
                 if (location != null) {
                     getWeatherByLocation(location.latitude, location.longitude, currentTempUnit, currentLang)
@@ -125,15 +130,20 @@ class HomeViewModel(
                 val mapLocation = settingsRepository.getMapLocation().first()
 
                 if (mapLocation != null) {
-                    // We found a saved map location! Fetch weather for it.
                     val (lat, lon) = mapLocation
                     getWeatherByLocation(lat, lon, currentTempUnit, currentLang)
                 } else {
-                    // The user set the method to "Map" but hasn't actually picked a location on the map yet.
-                    // We can fallback to a default city until they pick one.
                     getWeatherByCity("London", currentTempUnit, currentLang)
                 }
             }
+        }
+    }
+
+    fun onPermissionResult(granted: Boolean) {
+        if (granted) {
+            loadWeatherInfo()
+        } else {
+            _uiState.value = HomeUiState.PermissionDenied
         }
     }
 

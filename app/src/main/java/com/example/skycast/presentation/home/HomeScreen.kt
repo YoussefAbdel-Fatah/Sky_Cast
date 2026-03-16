@@ -42,25 +42,25 @@ import com.example.skycast.utils.DateUtils.formatNumber
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: HomeViewModel // 1. Pass the ViewModel in
+    viewModel: HomeViewModel // Pass the ViewModel in
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val pullToRefreshState = rememberPullToRefreshState()
 
-    // Gap 3: Snackbar host for SharedFlow events
+    // Snackbar host for SharedFlow events
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 1. Setup the Permission Launcher
+    // Setup the Permission Launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
-        onResult = {
-            // Once the user clicks "Allow" or "Deny", tell the ViewModel to load the weather
-            viewModel.loadWeatherInfo()
+        onResult = { permissions ->
+            val allGranted = permissions.values.all { it }
+            viewModel.onPermissionResult(allGranted)
         }
     )
 
-    // 2. Request the permissions as soon as the screen opens
+    // Request the permissions as soon as the screen opens
     LaunchedEffect(Unit) {
         permissionLauncher.launch(
             arrayOf(
@@ -70,7 +70,7 @@ fun HomeScreen(
         )
     }
 
-    // Gap 3: Collect one-time SharedFlow events and show Snackbar
+    // Collect one-time SharedFlow events and show Snackbar
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             when (event) {
@@ -123,7 +123,7 @@ fun HomeScreen(
         containerColor = BackgroundLight
     ) { paddingValues ->
 
-        // Gap 2: Use sealed class with 'when' for UI state management
+        // Use sealed class with 'when' for UI state management
         when (val state = uiState) {
             is HomeUiState.Loading -> {
                 Box(
@@ -136,18 +136,32 @@ fun HomeScreen(
                 }
             }
 
+            is HomeUiState.PermissionDenied -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    LocationPermissionDenied(
+                        onGrantClicked = {
+                            permissionLauncher.launch(
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                )
+                            )
+                        }
+                    )
+                }
+            }
+
             is HomeUiState.Error -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
+                        .padding(paddingValues)
                 ) {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 16.sp
-                    )
+                    OfflineEmptyState(onRetry = { viewModel.loadWeatherInfo() })
                 }
             }
 

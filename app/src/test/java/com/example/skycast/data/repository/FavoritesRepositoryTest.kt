@@ -19,7 +19,7 @@ class FavoritesRepositoryTest {
     @Test
     fun getFavorites_returnsFlowFromDao() = runTest {
         val mockList = listOf(FavoriteEntity(1, "Tokyo", 0.0, 0.0))
-        // when getAllFavorites is called, return mockList
+        // when getAllFavorites is called, return mockList (stub behavior)
         every { mockDao.getAllFavorites() } returns flowOf(mockList)
 
         val result = repository.getFavorites().first()

@@ -53,6 +53,10 @@
     <string name="hourly_forecast">توقعات الساعات</string>
     <string name="view_all">عرض الكل</string>
     <string name="five_day_forecast">توقعات 5 أيام</string>
+    <string name="location_permission_required">إذن الموقع مطلوب</string>
+    <string name="location_permission_rationale">يحتاج SkyCast إلى صلاحية الموقع لعرض حالة الطقس لمنطقتك الحالية. يرجى منح الإذن أو فتح الإعدادات.</string>
+    <string name="grant_permission">منح الإذن</string>
+    <string name="open_app_settings">فتح إعدادات التطبيق</string>
 
     <!-- Favorites Screen -->
     <string name="remove_favorite_title">إزالة من المفضلة</string>
