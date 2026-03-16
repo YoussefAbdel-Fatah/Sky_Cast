@@ -44,6 +44,7 @@ class HomeViewModel(
     private var currentLang = "en"
     private var currentTempUnit = "metric"
     private var currentWindUnit = "metric"
+    private var isOnline = true
 
 
 
@@ -83,16 +84,17 @@ class HomeViewModel(
         }
     }
     private fun observeNetwork() {
-        networkObserver.observe().onEach { isOnline ->
-            val current = _uiState.value
-            val wasOffline = current is HomeUiState.Success && current.isOffline
+        networkObserver.observe().onEach { online ->
+            val wasOffline = !isOnline
+            isOnline = online
 
+            val current = _uiState.value
             if (current is HomeUiState.Success) {
-                _uiState.value = current.copy(isOffline = !isOnline)
+                _uiState.value = current.copy(isOffline = !online)
             }
 
             // If the connection just came back, refresh the data automatically!
-            if (isOnline && wasOffline) {
+            if (online && wasOffline && current is HomeUiState.Success) {
                 refresh()
             }
         }.launchIn(viewModelScope)
@@ -101,6 +103,13 @@ class HomeViewModel(
     fun refresh() {
         val current = _uiState.value
         if (current is HomeUiState.Success) {
+            // If offline, show a snackbar and don't attempt a network call
+            if (!isOnline) {
+                viewModelScope.launch {
+                    _events.emit(HomeEvent.ShowError("No internet connection"))
+                }
+                return
+            }
             _uiState.value = current.copy(isRefreshing = true)
         }
         if (lastLat != null && lastLon != null) {
@@ -185,10 +194,10 @@ class HomeViewModel(
                     tempUnit = currentTempUnit,
                     windUnit = currentWindUnit,
                     isRefreshing = false,
-                    isOffline = (_uiState.value as? HomeUiState.Success)?.isOffline ?: false
+                    isOffline = !isOnline
                 )
-                // Emit a one-time event when a pull-to-refresh completes
-                if (wasRefreshing) {
+                // Emit a one-time event when a pull-to-refresh completes successfully online
+                if (wasRefreshing && isOnline) {
                     _events.emit(HomeEvent.WeatherRefreshed)
                 }
             }
