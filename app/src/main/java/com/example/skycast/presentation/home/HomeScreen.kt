@@ -1,6 +1,10 @@
 package com.example.skycast.presentation.home
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -20,6 +24,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,11 +32,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.example.skycast.R
 import com.example.skycast.presentation.components.*
 import com.example.skycast.presentation.theme.*
@@ -47,6 +57,8 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val pullToRefreshState = rememberPullToRefreshState()
+    val context = LocalContext.current
+    val activity = context as Activity
 
     // Snackbar host for SharedFlow events
     val snackbarHostState = remember { SnackbarHostState() }
@@ -68,6 +80,20 @@ fun HomeScreen(
                 Manifest.permission.ACCESS_COARSE_LOCATION
             )
         )
+    }
+
+    // Re-check permission when returning from App Settings
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.loadWeatherInfo()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     // Collect one-time SharedFlow events and show Snackbar
@@ -144,12 +170,25 @@ fun HomeScreen(
                 ) {
                     LocationPermissionDenied(
                         onGrantClicked = {
-                            permissionLauncher.launch(
-                                arrayOf(
-                                    Manifest.permission.ACCESS_FINE_LOCATION,
-                                    Manifest.permission.ACCESS_COARSE_LOCATION
-                                )
+                            // Check if the system will show the permission dialog
+                            val shouldShowRationale = ActivityCompat.shouldShowRequestPermissionRationale(
+                                activity, Manifest.permission.ACCESS_FINE_LOCATION
                             )
+                            if (shouldShowRationale) {
+                                // User denied once but didn't select "Don't ask again" — re-ask
+                                permissionLauncher.launch(
+                                    arrayOf(
+                                        Manifest.permission.ACCESS_FINE_LOCATION,
+                                        Manifest.permission.ACCESS_COARSE_LOCATION
+                                    )
+                                )
+                            } else {
+                                // User permanently denied or 2nd deny on Android 11+ — go to App Settings
+                                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                }
+                                context.startActivity(intent)
+                            }
                         }
                     )
                 }
